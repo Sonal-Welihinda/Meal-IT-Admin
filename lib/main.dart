@@ -1,10 +1,37 @@
+// import 'dart:html';
+
 import 'package:flutter/material.dart';
-
+import 'package:firebase_core/firebase_core.dart';
+import 'package:meal_it_admin/PageLayers/MealShipLogin.dart';
+import 'firebase_options.dart';
 import 'Admin_home_tablayout.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
-void main() {
+Future<void> main() async {
+
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
+  // if(kIsWeb){
+  //   addCspMetaTag();
+  // }
+
 }
+
+// void addCspMetaTag() {
+//   // Get the head element
+//   var head = document.getElementsByTagName('head').first;
+//
+//   // Create a new meta tag
+//   var meta = document.createElement('meta');
+//   meta.setAttribute('http-equiv', 'Content-Security-Policy');
+//   meta.setAttribute('content', 'default-src \'self\' * data:');
+//
+//   // Add the meta tag to the head element
+//   head.append(meta);
+// }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -14,7 +41,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const Admin_home_tablayout(),
+
+      home: MealShipLogin(),
     );
   }
 }

@@ -1,38 +1,17 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:meal_it_admin/PageLayers/AdminUsersPage.dart';
-import 'package:meal_it_admin/PageLayers/BranchPage.dart';
-import 'package:meal_it_admin/PageLayers/MealShipLogin.dart';
-import 'package:meal_it_admin/view_models/DrawerNav.dart';
 
-class Admin_home_tablayout extends StatefulWidget {
+class DrawerNav extends StatefulWidget {
+  const DrawerNav({Key? key}) : super(key: key);
+
   @override
-  _Admin_home_tablayout createState() => _Admin_home_tablayout();
-
-
-  const Admin_home_tablayout({super.key});
+  State<DrawerNav> createState() => _DrawerNavState();
 }
 
-
-class _Admin_home_tablayout extends State<Admin_home_tablayout> {
-  GlobalKey<ScaffoldState> sacfFold = GlobalKey<ScaffoldState>();
-
-  int index = 0;
-
-
-  late var pageLayouts = [
-    AdminUsers(sacfFoldStatekey: sacfFold),
-    BranchPage(sacfFoldStatekey: sacfFold),
-  ];
-
-
-
-
+class _DrawerNavState extends State<DrawerNav> {
   @override
-  Widget build(BuildContext context) =>
-    Scaffold(
-      key: sacfFold,
-      drawer: Drawer(
+  Widget build(BuildContext context) {
+    return
+       Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
@@ -84,9 +63,7 @@ class _Admin_home_tablayout extends State<Admin_home_tablayout> {
               leading: Icon(Icons.store),
               title: Text('Branches'),
               onTap: () {
-                setState(() {
-                  index = 1;
-                });
+                // Navigate to help screen.
               },
 
             ),
@@ -95,21 +72,7 @@ class _Admin_home_tablayout extends State<Admin_home_tablayout> {
               leading: Icon(Icons.group),
               title: Text('Users'),
               onTap: () {
-                setState(() {
-                  index = 0;
-                });
-              },
-
-            ),
-            ListTile(
-              leading: Icon(Icons.logout),
-              title: Text('Logout'),
-              onTap: () async {
-                await FirebaseAuth.instance.signOut();
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => MealShipLogin()),
-                );
+                // Navigate to help screen.
               },
 
             ),
@@ -117,12 +80,8 @@ class _Admin_home_tablayout extends State<Admin_home_tablayout> {
 
           ],
         ),
-      ),
-      body: pageLayouts[index],
-
-    );
+      );
 
 
   }
-
-
+}

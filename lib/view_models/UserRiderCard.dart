@@ -1,28 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:meal_it_admin/Classes/Admin..dart';
+import 'package:meal_it_admin/Classes/Rider.dart';
 import 'package:meal_it_admin/view_models/UserAdminCard.dart';
 
 
-class UserAdminCard extends StatefulWidget {
-   UserAdminCard({Key? key}) : super(key: key);
+class UserRiderCard extends StatefulWidget {
+  UserRiderCard({Key? key}) : super(key: key);
 
 
-  late Admin admin;
+  late Rider rider;
 
-  UserAdminCard setAdmin(Admin value) {
-    this.admin = value;
+   UserRiderCard setRider(Rider value) {
+    this.rider = value;
     return this;
   }
 
-  Admin getAdmin(){
-    return admin;
+  Rider getRider(){
+    return rider;
   }
 
   @override
-  State<UserAdminCard> createState() => _UserAdminCardState();
+  State<UserRiderCard> createState() => _UserRiderCardState();
 }
 
-class _UserAdminCardState extends State<UserAdminCard> {
+class _UserRiderCardState extends State<UserRiderCard> {
 
 
   @override
@@ -35,7 +36,7 @@ class _UserAdminCardState extends State<UserAdminCard> {
 
                 FadeInImage(
                   placeholder: AssetImage('assets/Images/dog.jpg'),
-                  image: NetworkImage(widget.getAdmin().img),
+                  image: NetworkImage(widget.getRider().img),
                   imageErrorBuilder: (context, error, stackTrace) {
                     return Icon(Icons.error);
                   },
@@ -56,7 +57,7 @@ class _UserAdminCardState extends State<UserAdminCard> {
                 Row(
                   children: [
                     Text(
-                      widget.getAdmin().name,
+                      widget.getRider().name,
                       style: TextStyle(
                         fontSize: 24,
 
@@ -68,7 +69,7 @@ class _UserAdminCardState extends State<UserAdminCard> {
                   padding: const EdgeInsets.only(top: 3.0),
                   child: Row(
                     children: [
-                      Text(widget.getAdmin().email),
+                      Text(widget.getRider().email),
                     ],
                   ),
                 )
