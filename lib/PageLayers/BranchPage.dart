@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meal_it_admin/Classes/BL.dart';
 import 'package:meal_it_admin/Classes/Branch.dart';
 import 'package:meal_it_admin/PageLayers/BranchAdd.dart';
 import 'package:meal_it_admin/Services/FirebaseDBService.dart';
@@ -13,11 +14,11 @@ class BranchPage extends StatefulWidget {
 }
 
 class _BranchPageState extends State<BranchPage> {
-  final FirebaseDBServices _dbServices = FirebaseDBServices();
+  final BusinessLayer _businessL = BusinessLayer();
   List<Branch> Brancheslist = [];
 
   Future<void> getBranches() async {
-    await _dbServices.getAllBranches().then((value) => {
+    await _businessL.getAllBranches().then((value) => {
       Brancheslist = value
     });
 

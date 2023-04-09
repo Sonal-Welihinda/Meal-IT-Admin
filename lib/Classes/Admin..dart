@@ -10,7 +10,7 @@ class Admin extends User{
 
 
   Admin({required this.name,required this.gender,required this.phoneNumber,required this.address,
-    required this.accountType,required this.branchID,required this.img, required email}) :super(email);
+    required this.accountType,required this.branchID,required this.img, required email,  UID}) :super.emailAndPass(email: email,uID: UID);
 
   Admin.createOne(this.name,this.img,email) : super(email);
 
@@ -38,7 +38,8 @@ class Admin extends User{
       accountType: snapshot.get("AccountType"),
       gender : snapshot.get("Gender") ,
       branchID: snapshot.data().toString().contains('BranchID') ? snapshot.get("BranchID") : "",
-      img: snapshot.get("ImageUrl")
+      img: snapshot.get("ImageUrl"),
+      UID: snapshot.id
     );
   }
 

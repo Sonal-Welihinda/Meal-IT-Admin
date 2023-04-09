@@ -1,4 +1,5 @@
 import 'dart:io' as i;
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 // import 'package:flutter/foundation.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -6,6 +7,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:meal_it_admin/Classes/Admin..dart';
+import 'package:meal_it_admin/Classes/BL.dart';
 import 'package:meal_it_admin/Classes/Branch.dart';
 import 'package:meal_it_admin/Services/FirebaseDBService.dart';
 import 'package:meal_it_admin/view_models/custom_RadioButton1.dart';
@@ -31,15 +33,26 @@ class _AdminAddState extends State<AdminAdd> {
   late String imageUrl ="";
   late i.File? profilePic=null;
 
-  FirebaseDBServices _dbServices = FirebaseDBServices();
+  BusinessLayer _businessL = BusinessLayer();
   late List<Branch> branchesList = <Branch>[];
 
   Future<void> selectedImage() async {
     if(!kIsWeb){
-      await Permission.photos.request();
-      var permissionStatus = await Permission.photos.status;
-      if(permissionStatus.isDenied){
-        return;
+      PermissionStatus permissionStatus ;
+
+      if (i.Platform.isAndroid) {
+        var androidInfo = await DeviceInfoPlugin().androidInfo;
+        if (androidInfo.version.sdkInt <= 32) {
+          await Permission.storage.request();
+          permissionStatus = await Permission.storage.status;
+        }  else {
+          await Permission.photos.request();
+          permissionStatus = await Permission.photos.status;
+        }
+
+        if(permissionStatus.isDenied){
+          return;
+        }
       }
 
 
@@ -80,30 +93,24 @@ class _AdminAddState extends State<AdminAdd> {
 
 
   Future<void> createAdmin() async {
-    await uploadImage();
+    if(profilePic == null){
+      return;
+    }
+
     if(_nameController.text.isEmpty || imageUrl == null || imageUrl.isEmpty){
       return;
     }
 
-    Admin admin = Admin.createOne("", "", "");
-    admin.name = _nameController.text;
-    admin.address = _addressController.text;
-    admin.phoneNumber = _phoneController.text;
-    admin.gender = _gender.name;
-    admin.img = imageUrl;
-    admin.accountType = AccType;
-    admin.email = _emailController.text;
-    admin.password = "test1234";
-    if(AccType=="Branch-Admin"){admin.branchID = selectedBranch.uid;};
 
-    _dbServices.createAdmin(admin).then((value) => null);
+    await _businessL.createAdmin(_nameController.text,_addressController.text,_phoneController.text,_gender.name,profilePic!,AccType,_emailController.text
+        ,"test1234",selectedBranch).then((value) => null);
 
 
   }
 
   Future<void> getBranches() async {
 
-    branchesList = await _dbServices.getAllBranches();
+    branchesList = await _businessL.getAllBranches();
     setState(() {});
 
   }
@@ -126,6 +133,7 @@ class _AdminAddState extends State<AdminAdd> {
   String AccType = "Branch-Admin";
 
   GenderSelector _gender = GenderSelector.male;
+
 
 
 

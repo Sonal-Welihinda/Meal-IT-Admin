@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meal_it_admin/Classes/BL.dart';
 import 'package:meal_it_admin/Classes/Branch.dart';
 import 'package:meal_it_admin/Services/FirebaseDBService.dart';
 
@@ -17,7 +18,7 @@ class _BranchAddState extends State<BranchAdd> {
   final TextEditingController _longitude = TextEditingController();
   final TextEditingController _latitude = TextEditingController();
   
-  final FirebaseDBServices _dbServices = FirebaseDBServices();
+  final BusinessLayer _businessL = BusinessLayer();
 
   //reg text field styles
   //  changes font color
@@ -55,8 +56,8 @@ class _BranchAddState extends State<BranchAdd> {
 
 
 
-    String respond =await _dbServices.createBranch(
-        Branch.createOne(_name.text,_phoneNumber.text,_address.text,double.parse(_longitude.text),double.parse(_latitude.text)));
+    String respond =await _businessL.createBranch(
+        _name.text,_phoneNumber.text,_address.text,_longitude.text,_latitude.text);
 
     if(respond == "Success"){
       snackBarMessage("Branch successfully created");
@@ -86,12 +87,6 @@ class _BranchAddState extends State<BranchAdd> {
                 ),
               ),
             ),
-
-            // CircleAvatar(
-            //   radius: 50, // size of the avatar
-            //   backgroundColor: Colors.grey[300], // background color of the avatar
-            //   child: Icon(Icons.person, size: 50, color: Colors.blue),
-            // ),
 
 
             //Label for the text field

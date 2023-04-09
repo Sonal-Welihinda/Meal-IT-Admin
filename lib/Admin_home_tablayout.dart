@@ -2,7 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:meal_it_admin/PageLayers/AdminUsersPage.dart';
 import 'package:meal_it_admin/PageLayers/BranchPage.dart';
+import 'package:meal_it_admin/PageLayers/InventoryPage.dart';
 import 'package:meal_it_admin/PageLayers/MealShipLogin.dart';
+import 'package:meal_it_admin/PageLayers/RecipePage.dart';
 import 'package:meal_it_admin/view_models/DrawerNav.dart';
 
 class Admin_home_tablayout extends StatefulWidget {
@@ -17,10 +19,12 @@ class Admin_home_tablayout extends StatefulWidget {
 class _Admin_home_tablayout extends State<Admin_home_tablayout> {
   GlobalKey<ScaffoldState> sacfFold = GlobalKey<ScaffoldState>();
 
-  int index = 0;
+  int index = 2;
 
 
   late var pageLayouts = [
+    InventoryPage(sacffoldKey: sacfFold),
+    RecipePage(homeScaffoldState: sacfFold),
     AdminUsers(sacfFoldStatekey: sacfFold),
     BranchPage(sacfFoldStatekey: sacfFold),
   ];
@@ -52,7 +56,9 @@ class _Admin_home_tablayout extends State<Admin_home_tablayout> {
               leading: Icon(Icons.inventory_2),
               title: Text('Inventory'),
               onTap: () {
-                // Navigate to home screen.
+                setState(() {
+                  index = 0;
+                });
               },
             ),
             ListTile(
@@ -66,7 +72,9 @@ class _Admin_home_tablayout extends State<Admin_home_tablayout> {
               leading: Icon(Icons.receipt),
               title: Text('Recipe'),
               onTap: () {
-                // Navigate to help screen.
+                setState(() {
+                  index = 1;
+                });
               },
 
             ),
@@ -85,7 +93,7 @@ class _Admin_home_tablayout extends State<Admin_home_tablayout> {
               title: Text('Branches'),
               onTap: () {
                 setState(() {
-                  index = 1;
+                  index = 3;
                 });
               },
 
@@ -96,7 +104,7 @@ class _Admin_home_tablayout extends State<Admin_home_tablayout> {
               title: Text('Users'),
               onTap: () {
                 setState(() {
-                  index = 0;
+                  index = 2;
                 });
               },
 

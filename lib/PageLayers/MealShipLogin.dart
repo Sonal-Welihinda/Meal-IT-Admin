@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:meal_it_admin/Admin_home_tablayout.dart';
+import 'package:meal_it_admin/Classes/BL.dart';
 import 'package:meal_it_admin/PageLayers/AdminUsersPage.dart';
 import 'package:meal_it_admin/Services/FirebaseDBService.dart';
 
@@ -15,7 +16,7 @@ class _MealShipLoginState extends State<MealShipLogin> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  FirebaseDBServices _dbServices = FirebaseDBServices();
+  BusinessLayer _businessL = BusinessLayer();
 
   @override
   Widget build(BuildContext context) {
@@ -75,8 +76,8 @@ class _MealShipLoginState extends State<MealShipLogin> {
                       // Perform login
                       final email = _emailController.text;
                       final password = _passwordController.text;
-                      _dbServices.LoginAdmin(email, password).then((value) => {
-                      _dbServices.getUserType(FirebaseAuth.instance.currentUser?.uid),
+                      _businessL.LoginAdmin(email, password).then((value) => {
+                        _businessL.getUserType(FirebaseAuth.instance.currentUser?.uid),
                         Navigator.push(
                         context,
                         MaterialPageRoute(

@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
 abstract class User{
-  late String _uID;
-  late String email;
-  late String password;
+ String uID="";
+ String email="";
+ String password="";
 
-  String get UID => _uID;
+  User.emailAndPass({this.email="", this.password="", this.uID=""});
+
+  String get UID => uID;
 
   set UID(String value) {
-    _uID = value;
+    uID = value;
   }
 
   String get Email => email;
@@ -29,6 +31,8 @@ abstract class User{
   User(email){
     this.email = email;
   }
+
+
 
 
 

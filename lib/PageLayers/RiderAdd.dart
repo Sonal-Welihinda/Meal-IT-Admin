@@ -1,4 +1,5 @@
 import 'dart:io' as i;
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 // import 'package:flutter/foundation.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -6,6 +7,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:meal_it_admin/Classes/Admin..dart';
+import 'package:meal_it_admin/Classes/BL.dart';
 import 'package:meal_it_admin/Classes/Branch.dart';
 import 'package:meal_it_admin/Classes/Rider.dart';
 import 'package:meal_it_admin/Services/FirebaseDBService.dart';
@@ -32,15 +34,26 @@ class _RiderAddState extends State<RiderAdd> {
   late String imageUrl ="";
   late i.File? profilePic=null;
 
-  FirebaseDBServices _dbServices = FirebaseDBServices();
+  BusinessLayer _businessL = BusinessLayer();
   late List<Branch> branchesList = <Branch>[];
 
   Future<void> selectedImage() async {
     if(!kIsWeb){
-      await Permission.photos.request();
-      var permissionStatus = await Permission.photos.status;
-      if(permissionStatus.isDenied){
-        return;
+      PermissionStatus permissionStatus ;
+
+      if (i.Platform.isAndroid) {
+        var androidInfo = await DeviceInfoPlugin().androidInfo;
+        if (androidInfo.version.sdkInt <= 32) {
+          await Permission.storage.request();
+          permissionStatus = await Permission.storage.status;
+        }  else {
+          await Permission.photos.request();
+          permissionStatus = await Permission.photos.status;
+        }
+
+        if(permissionStatus.isDenied){
+          return;
+        }
       }
 
 
@@ -64,40 +77,21 @@ class _RiderAddState extends State<RiderAdd> {
 
   }
 
-  Future<void> uploadImage() async {
-    if(profilePic==null){
-      return;
-    }
-
-    final storageRef = FirebaseStorage.instance.ref().child('images/${DateTime.now()}.png');
-    final uploadTask = storageRef.putFile(profilePic!,SettableMetadata(
-      contentType: "image/jpeg",
-    ));
-    final snapshot = await uploadTask.whenComplete(() => null);
-    imageUrl = await snapshot.ref.getDownloadURL();
-    setState(()  {});
-  }
 
 
 
   Future<void> createRider() async {
-    await uploadImage();
+
+    if(profilePic == null){
+      return;
+
+    }
+
     if(_nameController.text.isEmpty || imageUrl == null || imageUrl.isEmpty || selectedBranch == null){
       return;
     }
 
-    Rider rider = Rider.createOne("");
-    rider.name = _nameController.text;
-    rider.address = _addressController.text;
-    rider.phoneNumber = _phoneController.text;
-    rider.gender = _gender.name;
-    rider.img = imageUrl;
-    rider.accountType = "Rider";
-    rider.email = _emailController.text;
-    rider.password = "test1234";
-    rider.branchID = selectedBranch.uid;
-
-    _dbServices.createRiders(rider).then((value) => {
+    _businessL.createRiders(_nameController.text,_addressController.text,_phoneController.text,_gender.name,profilePic!,_emailController.text,"test1234",selectedBranch).then((value) => {
       Navigator.pop(context)
     });
 
@@ -106,7 +100,7 @@ class _RiderAddState extends State<RiderAdd> {
 
   Future<void> getBranches() async {
 
-    branchesList = await _dbServices.getAllBranches();
+    branchesList = await _businessL.getAllBranches();
     setState(() {});
 
   }
@@ -378,7 +372,7 @@ class _RiderAddState extends State<RiderAdd> {
                 },
                 child: Padding(
                   padding: const EdgeInsets.only(top: 8.0,bottom: 8.0),
-                  child: Text("Create Admin"),
+                  child: Text("Create Rider"),
                 ),
               ),
 

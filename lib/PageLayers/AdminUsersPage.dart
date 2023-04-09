@@ -1,9 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:meal_it_admin/Classes/Admin..dart';
+import 'package:meal_it_admin/Classes/BL.dart';
 import 'package:meal_it_admin/PageLayers/AdminAdd.dart';
+import 'package:meal_it_admin/PageLayers/AdminUpdate.dart';
+import 'package:meal_it_admin/PageLayers/CompanyAdd.dart';
+import 'package:meal_it_admin/PageLayers/CompanyUpdate.dart';
 import 'package:meal_it_admin/PageLayers/RiderAdd.dart';
+import 'package:meal_it_admin/PageLayers/RiderUpdate.dart';
 import 'package:meal_it_admin/Services/FirebaseDBService.dart';
+import 'package:meal_it_admin/view_models/CompanyCard.dart';
 import 'package:meal_it_admin/view_models/UserAdminCard.dart';
 import 'package:meal_it_admin/view_models/UserRiderCard.dart';
 
@@ -21,15 +27,16 @@ class AdminUsers extends StatefulWidget {
 class _AdminUsers extends State<AdminUsers> with SingleTickerProviderStateMixin{
 
   late GlobalKey<ScaffoldState> sacfFoldStatekey = widget.sacfFoldStatekey;
-  FirebaseDBServices _dbServices = FirebaseDBServices();
+  BusinessLayer _businessL = BusinessLayer();
 
 
   late List<UserAdminCard> AdminsList = [];
   late List<UserRiderCard> RidersList = [];
+  late List<CompanyCard> companyList = [];
 
   void getAdmins() async {
     AdminsList.clear();
-    await _dbServices.getAllAdmins().then(
+    await _businessL.getAllAdmins().then(
             (value) => {
               for(int i=0; i<value.length;i++){
                 AdminsList.add(UserAdminCard().setAdmin(value[i]))
@@ -43,10 +50,24 @@ class _AdminUsers extends State<AdminUsers> with SingleTickerProviderStateMixin{
 
   void getRiders() async {
     RidersList.clear();
-    await _dbServices.getAllRiders().then(
+    await _businessL.getAllRiders().then(
             (value) => {
           for(int i=0; i<value.length;i++){
             RidersList.add(UserRiderCard().setRider(value[i]))
+          }
+        });
+
+    setState(() {
+
+    });
+  }
+
+  void getCompanies() async {
+    companyList.clear();
+    await _businessL.getAllCompany().then(
+            (value) => {
+          for(int i=0; i<value.length;i++){
+            companyList.add(CompanyCard().setCompany(value[i]))
           }
         });
 
@@ -65,6 +86,7 @@ class _AdminUsers extends State<AdminUsers> with SingleTickerProviderStateMixin{
     userTabController = TabController(vsync: this, length: 3);
     getAdmins();
     getRiders();
+    getCompanies();
   }
 
   @override
@@ -100,7 +122,7 @@ class _AdminUsers extends State<AdminUsers> with SingleTickerProviderStateMixin{
                 TabBar(
                   labelColor: Colors.black,
                   controller: userTabController,
-                    tabs: [Tab(text: "Admins",),Tab(text: "Riders",),Tab(text: "Customers",)]
+                    tabs: [Tab(text: "Admins",),Tab(text: "Riders",),Tab(text: "Company",)]
                 ),
 
                 Expanded(
@@ -115,7 +137,15 @@ class _AdminUsers extends State<AdminUsers> with SingleTickerProviderStateMixin{
                           child: ListView.builder(
                             itemCount: AdminsList.length,
                             itemBuilder: (BuildContext context, int index) {
-                              return AdminsList[index];
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => AdminUpdate(admin: AdminsList[index].getAdmin()),)
+                                  );
+                                },
+                                child: AdminsList[index]
+                              );
                             },
                           ),
                         ),
@@ -138,7 +168,15 @@ class _AdminUsers extends State<AdminUsers> with SingleTickerProviderStateMixin{
                           child: ListView.builder(
                             itemCount: RidersList.length,
                             itemBuilder: (BuildContext context, int index) {
-                              return RidersList[index];
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => RiderUpdate(rider: RidersList[index].getRider(),),)
+                                  );
+                                },
+                                child: RidersList[index]
+                              );
                             },
                           ),
                         ),
@@ -153,7 +191,40 @@ class _AdminUsers extends State<AdminUsers> with SingleTickerProviderStateMixin{
                           child: Icon(Icons.add,color: Color.fromRGBO(224, 76, 43, 1),size: 40,),
                         ),
                       ),
-                      Center(child: Text("hi 3"),)
+
+                      // Companies
+                      Scaffold(
+                        floatingActionButton: FloatingActionButton(
+                          onPressed:() {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder:  (context) => CompanyAdd())
+                            );
+                          },
+
+
+                        ),
+                        body: RefreshIndicator(
+                          onRefresh: () async {
+                            getCompanies();
+                          },
+                          child: ListView.builder(
+                            itemCount: companyList.length,
+                            itemBuilder: (context, index) {
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => CompanyUpdate(company: companyList[index].company),)
+                                  );
+                                },
+                                child: companyList[index]
+                              );
+                            },
+
+                          ),
+                        ),
+                      )
                     ],
                       ),
                 )

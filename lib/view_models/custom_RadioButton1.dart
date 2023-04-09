@@ -24,7 +24,16 @@ class CustomRadioButton1 extends StatefulWidget {
 
     if(defaultBgColor != null){
       this.defaultBgColor = defaultBgColor;
+
     }
+
+    if(backgroundColor != null){
+      this.backgroundColor = backgroundColor;
+
+    }
+    
+    
+    
 
     // if(iconColor != null){
     //   this.iconColor = iconColor;
