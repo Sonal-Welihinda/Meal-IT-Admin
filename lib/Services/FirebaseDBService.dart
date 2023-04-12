@@ -8,6 +8,8 @@ import 'package:meal_it_admin/Classes/Admin..dart';
 import 'package:meal_it_admin/Classes/Branch.dart';
 import 'package:meal_it_admin/Classes/Company.dart';
 import 'package:meal_it_admin/Classes/FoodCategory.dart';
+import 'package:meal_it_admin/Classes/FoodProduct.dart';
+import 'package:meal_it_admin/Classes/Recipe.dart';
 import 'package:meal_it_admin/Classes/Rider.dart';
 import 'package:meal_it_admin/Interfaces/AdminInterface.dart';
 import 'package:meal_it_admin/Interfaces/BranchInterface.dart';
@@ -19,8 +21,10 @@ class FirebaseDBServices implements BranchInterface,AdminInterface,RiderInterfac
 
   final userDocRef = FirebaseFirestore.instance.collection('users');
   final foodCategoryDocRef = FirebaseFirestore.instance.collection('FoodCategory');
+  final recipeDocRef = FirebaseFirestore.instance.collection('Recipes');
   final branchDocRef = FirebaseFirestore.instance.collection('Meal Ship-Branches');
   final companyDocRef = FirebaseFirestore.instance.collection('Collab-Branches');
+  final foodProductDocRef = FirebaseFirestore.instance.collection('Food-Product');
 
 
   //common methods
@@ -181,11 +185,11 @@ class FirebaseDBServices implements BranchInterface,AdminInterface,RiderInterfac
 
     DocumentSnapshot documentSnapshot = await userDocRef.doc(uid).get();
     if (documentSnapshot.exists) {
-      Object? data = documentSnapshot.data()!;
-      print(data);
-      // if (data.containsKey('type')) {
-      //
-      // }
+      Map<String,dynamic> data = documentSnapshot.data() as Map<String, dynamic>;
+      if (data.containsKey('AccountType')) {
+        String AccType = data["AccountType"];
+        return AccType;
+      }
     }
     return "";
   }
@@ -326,5 +330,51 @@ class FirebaseDBServices implements BranchInterface,AdminInterface,RiderInterfac
     return foodCategoryList;
   }
 
+  @override
+  Future<String> createRecipe(Recipe recipe) async {
+    try {
+      await recipeDocRef.doc().set(recipe.toJson());
+      return "Success";
+    } on FirebaseException catch (e){
+      print(e);
+      return "failed";
+    }
+  }
+
+  @override
+  Future<String> updateRecipe(Recipe recipe) async {
+    try {
+      print(recipe.docID);
+      await recipeDocRef.doc(recipe.docID).update(recipe.toJson());
+      return "Success";
+    } on FirebaseException catch (e){
+      print(e);
+      return "failed";
+    }
+  }
+
+  @override
+  Future<List<Recipe>> getAllRecipe() async {
+
+    QuerySnapshot querySnapshot = await recipeDocRef.get();
+    List<Recipe> foodCategoryList = querySnapshot.docs.map((doc) => Recipe.fromSnapshot(doc)).toList();
+
+    return foodCategoryList;
+  }
+
+  //
+  // Food product
+  //
+
+  @override
+  Future<String> addProduct(FoodProduct foodProduct) async {
+    try{
+      await foodProductDocRef.doc().set(foodProduct.toJson());
+      return "Success";
+
+    }on FirebaseException catch (e){
+      return "failed";
+    }
+  }
 
 }

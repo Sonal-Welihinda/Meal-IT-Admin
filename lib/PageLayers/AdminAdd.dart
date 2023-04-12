@@ -101,11 +101,8 @@ class _AdminAddState extends State<AdminAdd> {
       return;
     }
 
-
     await _businessL.createAdmin(_nameController.text,_addressController.text,_phoneController.text,_gender.name,profilePic!,AccType,_emailController.text
         ,"test1234",selectedBranch).then((value) => null);
-
-
   }
 
   Future<void> getBranches() async {

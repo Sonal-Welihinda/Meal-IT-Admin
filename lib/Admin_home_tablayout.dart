@@ -6,6 +6,7 @@ import 'package:meal_it_admin/PageLayers/InventoryPage.dart';
 import 'package:meal_it_admin/PageLayers/MealShipLogin.dart';
 import 'package:meal_it_admin/PageLayers/RecipePage.dart';
 import 'package:meal_it_admin/view_models/DrawerNav.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Admin_home_tablayout extends StatefulWidget {
   @override
@@ -18,9 +19,16 @@ class Admin_home_tablayout extends StatefulWidget {
 
 class _Admin_home_tablayout extends State<Admin_home_tablayout> {
   GlobalKey<ScaffoldState> sacfFold = GlobalKey<ScaffoldState>();
+  late String userType;
 
   int index = 2;
 
+  Future<void> _loadSavedValue(field) async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userType = prefs.getString(field) ?? '';
+    });
+  }
 
   late var pageLayouts = [
     InventoryPage(sacffoldKey: sacfFold),
@@ -29,8 +37,12 @@ class _Admin_home_tablayout extends State<Admin_home_tablayout> {
     BranchPage(sacfFoldStatekey: sacfFold),
   ];
 
-
-
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _loadSavedValue("AccountType");
+  }
 
   @override
   Widget build(BuildContext context) =>
@@ -52,22 +64,24 @@ class _Admin_home_tablayout extends State<Admin_home_tablayout> {
                 ),
               ),
             ),
-            ListTile(
-              leading: Icon(Icons.inventory_2),
-              title: Text('Inventory'),
-              onTap: () {
-                setState(() {
-                  index = 0;
-                });
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.local_shipping),
-              title: Text('Orders'),
-              onTap: () {
-                // Navigate to settings screen.
-              },
-            ),
+            if(userType == "Branch-Admin")
+              ListTile(
+                leading: Icon(Icons.inventory_2),
+                title: Text('Inventory'),
+                onTap: () {
+                  setState(() {
+                    index = 0;
+                  });
+                },
+              ),
+            if(userType == "Branch-Admin")
+              ListTile(
+                leading: Icon(Icons.local_shipping),
+                title: Text('Orders'),
+                onTap: () {
+                  // Navigate to settings screen.
+                },
+              ),
             ListTile(
               leading: Icon(Icons.receipt),
               title: Text('Recipe'),
@@ -87,7 +101,7 @@ class _Admin_home_tablayout extends State<Admin_home_tablayout> {
               },
 
             ),
-
+            if(userType == "AdminHQ")
             ListTile(
               leading: Icon(Icons.store),
               title: Text('Branches'),

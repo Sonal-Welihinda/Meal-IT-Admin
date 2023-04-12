@@ -6,6 +6,9 @@ import 'package:meal_it_admin/Classes/Admin..dart';
 import 'package:meal_it_admin/Classes/Branch.dart';
 import 'package:meal_it_admin/Classes/Company.dart';
 import 'package:meal_it_admin/Classes/FoodCategory.dart';
+import 'package:meal_it_admin/Classes/FoodProduct.dart';
+import 'package:meal_it_admin/Classes/IngredientItem.dart';
+import 'package:meal_it_admin/Classes/Recipe.dart';
 import 'package:meal_it_admin/Classes/Rider.dart';
 import 'package:meal_it_admin/Services/FirebaseDBService.dart';
 
@@ -262,6 +265,84 @@ class BusinessLayer{
 
   Future<List<FoodCategory>> getAllFoodCategories() async {
     return _dbServices.getAllFoodCategories();
+  }
+
+
+//  Food recipe implementation
+  Future<String> createRecipe( String recipeName,String recipeDescription, FoodCategory category,String time,List<IngredientItem> ingredientList,List<String> steps,int servings,File? img) async {
+    if(img == null){
+
+      return "failed";
+    }
+    String? imgUrl =await _dbServices.UploadImage('recipes/${DateTime.now()}.png',img);
+
+    if(imgUrl == null || imgUrl.trim().isEmpty ){
+      return "failed";
+    }
+
+
+
+
+    Recipe recipe = Recipe.create(
+        recipeName: recipeName,
+        recipeDescription: recipeDescription,
+        recipeImage: imgUrl,
+        type: category,
+        time: time,
+        ingredientList: ingredientList,
+        steps: steps,
+        servings: servings
+    );
+
+    String result = await _dbServices.createRecipe(recipe);
+
+    return result;
+  }
+
+  Future<List<Recipe>> getAllRecipe() async {
+    return _dbServices.getAllRecipe();
+  }
+
+
+  Future<String> updateRecipe( Recipe recipe,File? img) async {
+    if(img != null){
+      String? imgUrl =await _dbServices.UploadImage('recipes/${DateTime.now()}.png',img);
+      if(imgUrl== null){
+        return "failed";
+      }
+      deleteImage(recipe.recipeImage);
+      recipe.recipeImage = imgUrl;
+    }
+
+    String result = await _dbServices.updateRecipe(recipe);
+
+    return result;
+  }
+
+  Future<String> addProduct(String foodName,String foodDescription,String recipeID,String foodType,String price,String quantity,File? img) async {
+    if(img == null){
+
+      return "failed";
+    }
+    String? imgUrl = await _dbServices.UploadImage('Products/${DateTime.now()}.png',img);
+
+    if(imgUrl == null || imgUrl.trim().isEmpty ){
+      return "failed";
+    }
+
+    FoodProduct foodProduct = FoodProduct.create(
+        foodName: foodName,
+        foodDescription: foodDescription,
+        foodRecipe: recipeID,
+        foodTypes: foodType,
+        price: BigInt.parse(price),
+        quantity: BigInt.parse(quantity)
+    );
+
+    String result = await _dbServices.addProduct(foodProduct);
+
+
+    return result;
   }
 
 }

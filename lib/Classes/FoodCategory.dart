@@ -7,8 +7,14 @@ class FoodCategory{
   FoodCategory.name({this.categoryName = '', this.docID = ''});
 
   Map<String , dynamic> toJson(){
-    print(categoryName);
     return {
+      'FoodCategoryName': categoryName,
+    };
+  }
+
+  Map<String , dynamic> toJson2(){
+    return {
+      'FoodCategoryID': docID,
       'FoodCategoryName': categoryName,
     };
   }
@@ -17,6 +23,13 @@ class FoodCategory{
     return FoodCategory.name(
       categoryName: snapshot.get("FoodCategoryName"),
       docID: snapshot.id,
+    );
+  }
+
+  factory FoodCategory.fromSnapshot2(DocumentSnapshot snapshot){
+    return FoodCategory.name(
+      categoryName: snapshot.get("Type.FoodCategoryName"),
+      docID: snapshot.get("Type.FoodCategoryID"),
     );
   }
 

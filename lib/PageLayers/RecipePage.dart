@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:meal_it_admin/Classes/BL.dart';
+import 'package:meal_it_admin/Classes/Recipe.dart';
 import 'package:meal_it_admin/PageLayers/RecipeAdd.dart';
+import 'package:meal_it_admin/PageLayers/RecipeUpdate.dart';
 
 class RecipePage extends StatefulWidget {
 
@@ -13,6 +16,28 @@ class RecipePage extends StatefulWidget {
 }
 
 class _RecipePageState extends State<RecipePage> {
+
+  List<Recipe> recipeList =[];
+  BusinessLayer _businessL = BusinessLayer();
+
+  Future<void> getRecipe() async {
+    recipeList.clear();
+    recipeList = await _businessL.getAllRecipe();
+
+    // recipeList.forEach((element) {print(element.recipeName);});
+    setState(() {
+
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getRecipe();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -70,69 +95,84 @@ class _RecipePageState extends State<RecipePage> {
             ),
             SizedBox(height: 20),
             Expanded(
-              child: ListView.builder(
-                itemCount: 20,
-                itemBuilder: (context, index) {
-                  return Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Color.fromRGBO(249, 249, 249, 1),
-                    ),
-                    margin: EdgeInsets.symmetric(vertical: 8,horizontal: 10),
-                    padding: EdgeInsets.only(top:8, bottom:4,left: 8,right: 10),
-                    height: 120,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 100,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            color: Colors.grey[300],
-                          ),
-                          // Replace this Image.asset with your image
-                          child: Image.asset('assets/Images/dog.jpg'),
-                        ),
-                        SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Title 1',
-                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                              ),
-                              Text(
-                                'Title 2\n tjfgf \n fdfdfdfdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd'.substring(0, 35) + '...',
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(fontSize: 16,
-
-                                ),
-                              ),
-                              Expanded(child: SizedBox(width: 1,)),
-
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 5),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.timer,color: Color.fromRGBO(255, 112, 80, 1),),
-                                    Text('10:00'),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                      ],
-                    ),
-                  );
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  getRecipe();
                 },
+                child: ListView.builder(
+                  itemCount: recipeList.length,
+                  itemBuilder: (context, index) {
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => RecipeUpdate(recipe:recipeList[index],)
+                            )
+                        );
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Color.fromRGBO(249, 249, 249, 1),
+                        ),
+                        margin: EdgeInsets.symmetric(vertical: 8,horizontal: 10),
+                        padding: EdgeInsets.only(top:8, bottom:4,left: 8,right: 10),
+                        height: 120,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 100,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                color: Colors.grey[300],
+                              ),
+                              // Replace this Image.asset with your image
+                              child: Image.asset('assets/Images/dog.jpg'),
+                            ),
+                            SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    recipeList[index].recipeName,
+                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(
+                                    recipeList[index].recipeDescription,
+                                    maxLines: 3,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(fontSize: 16,
+
+                                    ),
+                                  ),
+                                  Expanded(child: SizedBox(width: 1,)),
+
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 5),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.max,
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        Icon(Icons.timer,color: Color.fromRGBO(255, 112, 80, 1),),
+                                        Text(recipeList[index].time),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
           ],
