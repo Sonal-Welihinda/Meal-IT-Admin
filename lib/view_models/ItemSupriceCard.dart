@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:meal_it_admin/Classes/SurprisePack.dart';
 
 class ItemSurpriseCard extends StatefulWidget {
-  const ItemSurpriseCard({Key? key}) : super(key: key);
+  SurprisePack surprisePack;
+
+  ItemSurpriseCard({Key? key, required this.surprisePack}) : super(key: key);
 
   @override
   State<ItemSurpriseCard> createState() => _ItemSurpriseCardState();
@@ -13,7 +16,7 @@ class _ItemSurpriseCardState extends State<ItemSurpriseCard> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14),
-        color: Colors.grey.shade900,
+        color: Colors.grey.shade100,
         boxShadow: [
           BoxShadow(
             color: Colors.grey.shade200.withOpacity(0.9),
@@ -37,7 +40,7 @@ class _ItemSurpriseCardState extends State<ItemSurpriseCard> {
             ),
             width: 120,
             height: 100,
-
+            child: Image.network(widget.surprisePack.imageUrl),
           ),
           SizedBox(width: 10),
           // Text fields
@@ -45,18 +48,18 @@ class _ItemSurpriseCardState extends State<ItemSurpriseCard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Cake nine of peanuts '),
+                Text(widget.surprisePack.packName),
                 SizedBox(height: 5),
-                Text('Type : indian cuisine'),
+                Text('Number of items : ${widget.surprisePack.numberOfItems}'),
                 SizedBox(height: 5),
-                Text('Recipe :Mexican caprese salad'),
-                SizedBox(height: 5),
-                Text('Quantity'),
+                // Text('Recipe :Mexican caprese salad'),
+                // SizedBox(height: 5),
+                Text('Quantity : ${widget.surprisePack.quantity}'),
                 Spacer(),
                 // Align right text
                 Align(
                   alignment: Alignment.centerRight,
-                  child: Text('Price : Rs 200.00'),
+                  child: Text('Price : ${widget.surprisePack.price}'),
                 ),
               ],
             ),

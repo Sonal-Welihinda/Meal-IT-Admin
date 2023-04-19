@@ -7,4 +7,5 @@ abstract class AdminInterface{
   Future<String> LoginAdmin(String email,String password);
   Future<String> UpdateAdmin(Admin admin);
   Future<String> UpdateAdminField(String uID,String fieldName,String value);
+  Future<List<Admin>> getAllBranchAdmins(String branchId);
 }

@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:meal_it_admin/Classes/BL.dart';
 import 'package:meal_it_admin/PageLayers/AdminUsersPage.dart';
 import 'package:meal_it_admin/PageLayers/BranchPage.dart';
 import 'package:meal_it_admin/PageLayers/InventoryPage.dart';
@@ -19,16 +20,20 @@ class Admin_home_tablayout extends StatefulWidget {
 
 class _Admin_home_tablayout extends State<Admin_home_tablayout> {
   GlobalKey<ScaffoldState> sacfFold = GlobalKey<ScaffoldState>();
-  late String userType;
+  BusinessLayer businessL = BusinessLayer();
+
+  late String userType="AdminHQ";
 
   int index = 2;
 
-  Future<void> _loadSavedValue(field) async {
-    final prefs = await SharedPreferences.getInstance();
+
+  Future<void> getUserType() async {
+    userType = await businessL.loadSavedValue("AccountType");
     setState(() {
-      userType = prefs.getString(field) ?? '';
+
     });
   }
+
 
   late var pageLayouts = [
     InventoryPage(sacffoldKey: sacfFold),
@@ -41,7 +46,8 @@ class _Admin_home_tablayout extends State<Admin_home_tablayout> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _loadSavedValue("AccountType");
+    getUserType();
+
   }
 
   @override

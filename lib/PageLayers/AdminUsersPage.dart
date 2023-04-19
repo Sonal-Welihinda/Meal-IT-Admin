@@ -50,6 +50,7 @@ class _AdminUsers extends State<AdminUsers> with SingleTickerProviderStateMixin{
 
   void getRiders() async {
     RidersList.clear();
+
     await _businessL.getAllRiders().then(
             (value) => {
           for(int i=0; i<value.length;i++){

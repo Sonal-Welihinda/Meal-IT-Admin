@@ -9,6 +9,7 @@ class Admin extends User{
 
 
 
+
   Admin({required this.name,required this.gender,required this.phoneNumber,required this.address,
     required this.accountType,required this.branchID,required this.img, required email,  UID}) :super.emailAndPass(email: email,uID: UID);
 

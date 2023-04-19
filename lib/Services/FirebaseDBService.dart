@@ -11,6 +11,7 @@ import 'package:meal_it_admin/Classes/FoodCategory.dart';
 import 'package:meal_it_admin/Classes/FoodProduct.dart';
 import 'package:meal_it_admin/Classes/Recipe.dart';
 import 'package:meal_it_admin/Classes/Rider.dart';
+import 'package:meal_it_admin/Classes/SurprisePack.dart';
 import 'package:meal_it_admin/Interfaces/AdminInterface.dart';
 import 'package:meal_it_admin/Interfaces/BranchInterface.dart';
 import 'package:meal_it_admin/Interfaces/CompanyInterface.dart';
@@ -21,10 +22,12 @@ class FirebaseDBServices implements BranchInterface,AdminInterface,RiderInterfac
 
   final userDocRef = FirebaseFirestore.instance.collection('users');
   final foodCategoryDocRef = FirebaseFirestore.instance.collection('FoodCategory');
+  // final userColabDocRef = FirebaseFirestore.instance.collection('users-colab');
   final recipeDocRef = FirebaseFirestore.instance.collection('Recipes');
   final branchDocRef = FirebaseFirestore.instance.collection('Meal Ship-Branches');
   final companyDocRef = FirebaseFirestore.instance.collection('Collab-Branches');
   final foodProductDocRef = FirebaseFirestore.instance.collection('Food-Product');
+  final surprisePackDocRef = FirebaseFirestore.instance.collection('Surprise-Pack');
 
 
   //common methods
@@ -48,6 +51,23 @@ class FirebaseDBServices implements BranchInterface,AdminInterface,RiderInterfac
 
 
     return true;
+  }
+
+  Future<String?> UpdateImage(String url, File img) async {
+    // final storageRef = FirebaseStorage.instance.ref().child('images/${DateTime.now()}.png');
+
+    try{
+      final storageRef = FirebaseStorage.instance.refFromURL(url);
+      final uploadTask = storageRef.putFile(img!,SettableMetadata(
+        contentType: "image/jpeg",
+      ));
+      await uploadTask.whenComplete(() => null);
+
+
+      return "Success";
+    } on FirebaseException catch (e){
+      return null;
+    }
   }
 
   Future<void> deleteImage(String imageUrl) async {
@@ -157,9 +177,18 @@ class FirebaseDBServices implements BranchInterface,AdminInterface,RiderInterfac
   @override
   Future<List<Admin>> getAllAdmins() async {
     QuerySnapshot querySnapshot = await userDocRef.where('AccountType', whereIn: ['AdminHQ', 'Branch-Admin']).get();
-    List<Admin> Branches = querySnapshot.docs.map((doc) => Admin.fromSnapshot(doc)).toList();
+    List<Admin> admins = querySnapshot.docs.map((doc) => Admin.fromSnapshot(doc)).toList();
 
-    return Branches;
+    return admins;
+  }
+
+  @override
+  Future<List<Admin>> getAllBranchAdmins(String branchId) async {
+    QuerySnapshot querySnapshot = await userDocRef.where('AccountType', whereIn: ['Branch-Admin'])
+        .where('BranchID',isEqualTo: branchId).get();
+    List<Admin> admins = querySnapshot.docs.map((doc) => Admin.fromSnapshot(doc)).toList();
+
+    return admins;
   }
 
   @override
@@ -177,21 +206,23 @@ class FirebaseDBServices implements BranchInterface,AdminInterface,RiderInterfac
 
   }
 
-  Future<String> getUserType(String? uid) async {
+  Future<DocumentSnapshot?> getUser(String? uid) async {
 
     if(uid == null){
-      return "";
+      return null;
     }
 
     DocumentSnapshot documentSnapshot = await userDocRef.doc(uid).get();
     if (documentSnapshot.exists) {
-      Map<String,dynamic> data = documentSnapshot.data() as Map<String, dynamic>;
-      if (data.containsKey('AccountType')) {
-        String AccType = data["AccountType"];
-        return AccType;
-      }
+      // Map<String,dynamic> data = documentSnapshot.data() as Map<String, dynamic>;
+      // if (data.containsKey('AccountType')) {
+      //   String AccType = data["AccountType"];
+      //   return AccType;
+      // }
+
+      return documentSnapshot;
     }
-    return "";
+    return null;
   }
 
   //Riders
@@ -217,6 +248,16 @@ class FirebaseDBServices implements BranchInterface,AdminInterface,RiderInterfac
   @override
   Future<List<Rider>> getAllRiders() async {
     QuerySnapshot querySnapshot = await userDocRef.where('AccountType', whereIn: ['Rider']).get();
+    List<Rider> Riders = querySnapshot.docs.map((doc) => Rider.fromSnapshot(doc)).toList();
+
+    return Riders;
+
+  }
+
+  @override
+  Future<List<Rider>> getAllBranchRiders(String branchID) async {
+    QuerySnapshot querySnapshot = await userDocRef.where('AccountType', whereIn: ['Rider'])
+        .where('BranchID',isEqualTo: branchID).get();
     List<Rider> Riders = querySnapshot.docs.map((doc) => Rider.fromSnapshot(doc)).toList();
 
     return Riders;
@@ -362,6 +403,15 @@ class FirebaseDBServices implements BranchInterface,AdminInterface,RiderInterfac
     return foodCategoryList;
   }
 
+  // @override
+  // Future<Recipe> getRecipe(String recipeID) async {
+  //
+  //   QuerySnapshot querySnapshot = await recipeDocRef.get();
+  //   Recipe foodCategoryList = querySnapshot.docs.map((doc) => Recipe.fromSnapshot(doc)).toList();
+  //
+  //   return foodCategoryList;
+  // }
+
   //
   // Food product
   //
@@ -373,6 +423,71 @@ class FirebaseDBServices implements BranchInterface,AdminInterface,RiderInterfac
       return "Success";
 
     }on FirebaseException catch (e){
+      return "failed";
+    }
+  }
+
+  @override
+  Future<String> updateFoodProductField(String uID,String fieldName, value) async {
+    try {
+      if(uID.trim().isEmpty){
+        return "Failed";
+      }
+
+      await foodProductDocRef.doc(uID).update({fieldName:value});
+      return "Success";
+    } on FirebaseException catch (e){
+      print(e);
+      return "failed";
+    }
+  }
+
+  @override
+  Future<List<FoodProduct>> getAllFoodProduct(String branchID) async {
+
+    QuerySnapshot querySnapshot = await foodProductDocRef.where("BranchID" , isEqualTo: branchID).get();
+    List<FoodProduct> foodProductList = querySnapshot.docs.map((doc) => FoodProduct.fromSnapshot(doc)).toList();
+
+    return foodProductList;
+  }
+
+
+//
+// Surprise pack
+//
+
+  @override
+  Future<String> addSurprisePack(SurprisePack surprisePack) async {
+    try{
+      await surprisePackDocRef.doc().set(surprisePack.toJson());
+      return "Success";
+
+    }on FirebaseException catch (e){
+      print(e);
+      return "failed";
+    }
+  }
+
+  @override
+  Future<List<SurprisePack>> getAllFoodPacks(String branchID) async {
+
+    QuerySnapshot querySnapshot = await surprisePackDocRef.where("BranchID" , isEqualTo: branchID).get();
+    List<SurprisePack> foodPackList = querySnapshot.docs.map((doc) => SurprisePack.fromSnapshot(doc)).toList();
+
+    return foodPackList;
+  }
+
+  @override
+  Future<String> updateFoodPackField(String uID,String fieldName, value) async {
+    try {
+      if(uID.trim().isEmpty){
+        return "Failed";
+      }
+
+      await surprisePackDocRef.doc(uID).update({fieldName:value});
+      return "Success";
+    } on FirebaseException catch (e){
+      print(e);
       return "failed";
     }
   }

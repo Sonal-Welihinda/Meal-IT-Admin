@@ -30,12 +30,14 @@ class _RiderAddState extends State<RiderAdd> {
   TextEditingController _emailController = TextEditingController();
   TextEditingController _phoneController = TextEditingController();
   TextEditingController _addressController = TextEditingController();
-  late Branch selectedBranch ;
+  late Branch? selectedBranch =null ;
   late String imageUrl ="";
   late i.File? profilePic=null;
 
   BusinessLayer _businessL = BusinessLayer();
   late List<Branch> branchesList = <Branch>[];
+
+  late String accType="AdminHQ";
 
   Future<void> selectedImage() async {
     if(!kIsWeb){
@@ -91,7 +93,7 @@ class _RiderAddState extends State<RiderAdd> {
       return;
     }
 
-    _businessL.createRiders(_nameController.text,_addressController.text,_phoneController.text,_gender.name,profilePic!,_emailController.text,"test1234",selectedBranch).then((value) => {
+    _businessL.createRiders(_nameController.text,_addressController.text,_phoneController.text,_gender.name,profilePic!,_emailController.text,"test1234",selectedBranch!).then((value) => {
       Navigator.pop(context)
     });
 
@@ -124,14 +126,24 @@ class _RiderAddState extends State<RiderAdd> {
   GenderSelector _gender = GenderSelector.male;
 
 
-
+  Future<void> specifyUserFunctions() async {
+    await getBranches();
+    String type = await _businessL.loadSavedValue("AccountType");
+    if(type=="Branch-Admin"){
+      String branchID = await _businessL.loadSavedValue("BranchID");
+      accType="Branch-Admin";
+      selectedBranch = branchesList.firstWhere((element) => element.uid ==branchID);
+      setState(() {
+      });
+    }
+  }
 
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    getBranches();
+    specifyUserFunctions();
   }
 
   @override
@@ -237,6 +249,8 @@ class _RiderAddState extends State<RiderAdd> {
               //Assign branch drop down
 
               DropdownSearch<Branch>(
+                enabled: !(accType=="Branch-Admin"),
+                  selectedItem: selectedBranch??null,
                   onChanged: (value) {
                     setState(() {
                       if(value!=null){

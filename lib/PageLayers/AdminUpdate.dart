@@ -120,11 +120,13 @@ class _AdminUpdateState extends State<AdminUpdate> {
     }
 
 
-    _businessL.UpdateAdmin(admin,profilePic).then((value) => {
-      if(isDataChanged){
-        showSnackBar("Admin info updated")
-      },
-      Navigator.pop(context)
+    _businessL.UpdateAdmin(admin,profilePic).then((value) {
+      if(value == "Success"){
+        showSnackBar("Admin info updated");
+      }else{
+        showSnackBar("Something went wrong while updating the admin");
+      }
+      Navigator.pop(context);
     });
 
 

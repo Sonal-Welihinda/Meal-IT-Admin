@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:meal_it_admin/Classes/FoodCategory.dart';
 import 'package:meal_it_admin/Classes/Recipe.dart';
 
@@ -5,11 +6,12 @@ class FoodProduct{
   late String docID;
   late String foodName;
   late String foodDescription;
-  late String foodRecipe;
-  late String foodTypes;
+  late Recipe foodRecipe;
+  late FoodCategory foodTypes;
   late BigInt price;
   late BigInt quantity;
   late String imgUrl;
+  late String branchID;
 
   FoodProduct.create(
       {
@@ -20,8 +22,8 @@ class FoodProduct{
         required this.price,
         required this.quantity,
         this.imgUrl ="",
-        this.docID = ""
-
+        this.docID = "",
+        this.branchID=""
       }
       );
 
@@ -29,11 +31,26 @@ class FoodProduct{
     return{
       'FoodName': foodName,
       'FoodDescription': foodDescription,
-      'FoodRecipe': foodRecipe,
-      'FoodTypes': foodTypes,
+      'FoodRecipe': foodRecipe.productToJson(),
+      'Type': foodTypes.toJson2(),
       'Price': price.toString(),
       'Quantity': quantity.toString(),
       'ImgUrl': imgUrl,
+      'BranchID':branchID
     };
+  }
+
+  factory FoodProduct.fromSnapshot(DocumentSnapshot snapshot){
+    return FoodProduct.create(
+        foodName: snapshot.get("FoodName"),
+        foodDescription: snapshot.get("FoodDescription"),
+        quantity: BigInt.parse(snapshot.get("Quantity")) ,
+        foodRecipe: Recipe.productFromSnapshot(snapshot.get("FoodRecipe")) ,
+        price: BigInt.parse(snapshot.get("Price")) ,
+        foodTypes: FoodCategory.fromSnapshot3(snapshot.get("Type")) ,
+        imgUrl: snapshot.get("ImgUrl"),
+        branchID: snapshot.get("BranchID"),
+        docID: snapshot.id
+    );
   }
 }

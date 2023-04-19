@@ -6,4 +6,5 @@ abstract class RiderInterface{
   Future<String> LoginRider(String email,String password);
   Future<String> UpdateRider(Rider rider);
   Future<String> UpdateRiderField(String uID,String fieldName,String value);
+  Future<List<Rider>> getAllBranchRiders(String branchID);
 }

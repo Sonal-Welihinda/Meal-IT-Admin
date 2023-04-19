@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 abstract class User{
@@ -6,6 +7,24 @@ abstract class User{
  String password="";
 
   User.emailAndPass({this.email="", this.password="", this.uID=""});
+
+ // factory User(Map<String, dynamic> map) {
+ //   switch (map['userType']) {
+ //     case 'admin':
+ //       return Admin.empty();
+ //     case 'rider':
+ //       return Rider(
+ //         name: map['name'],
+ //         email: map['email'],
+ //         userType: map['userType'],
+ //         riderId: map['riderId'],
+ //         bikeType: map['bikeType'],
+ //       );
+ //     default:
+ //       throw ArgumentError('Invalid userType');
+ //   }
+ // }
+
 
   String get UID => uID;
 

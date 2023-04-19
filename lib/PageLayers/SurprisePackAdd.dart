@@ -7,28 +7,24 @@ import 'package:meal_it_admin/Classes/BL.dart';
 import 'package:meal_it_admin/Classes/FoodCategory.dart';
 import 'package:meal_it_admin/Classes/Recipe.dart';
 
-class ProductAdd extends StatefulWidget {
-  const ProductAdd({Key? key}) : super(key: key);
+class SurprisePackAdd extends StatefulWidget {
+  const SurprisePackAdd({Key? key}) : super(key: key);
 
   @override
-  State<ProductAdd> createState() => _ProductAddState();
+  State<SurprisePackAdd> createState() => _SurprisePackAddState();
 }
 
-class _ProductAddState extends State<ProductAdd> {
+class _SurprisePackAddState extends State<SurprisePackAdd> {
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
+  final TextEditingController _numOfItemsController = TextEditingController();
   late File? _image =null;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  late FoodCategory? selectedFoodCategory = null;
-  late Recipe selectedRecipe;
-
   final BusinessLayer _businessL = BusinessLayer();
-  late List<FoodCategory> foodCategoriesList=[];
-  List<Recipe> recipeList =[];
 
 
 
@@ -44,29 +40,10 @@ class _ProductAddState extends State<ProductAdd> {
     });
   }
 
-  Future<void> getAllRecipe() async {
-    recipeList.clear();
-    recipeList = await _businessL.getAllRecipe();
-
-    setState(() {
-
-    });
-  }
-
-  Future<void> getAllFoodCategories() async {
-    foodCategoriesList.clear();
-    foodCategoriesList = await _businessL.getAllFoodCategories();
-    setState(() {
-
-    });
-  }
-
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    getAllFoodCategories();
-    getAllRecipe();
   }
 
 
@@ -171,126 +148,6 @@ class _ProductAddState extends State<ProductAdd> {
                   ),
                 ),
 
-                //Recipe
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 10),
-                  child: DropdownSearch<Recipe>(
-                    itemAsString: (item) {
-                      return item.recipeName;
-                    },
-
-                    dropdownDecoratorProps: DropDownDecoratorProps(
-                        dropdownSearchDecoration: InputDecoration(
-                            filled: true,
-                            fillColor: Color.fromRGBO(246, 242, 242, 1),
-                            prefixIconColor: Color.fromRGBO(224, 76, 43, 1),
-                            prefixIcon: Icon(Icons.menu_book),
-                            enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(4),
-                                borderSide: BorderSide(
-                                    color: Color.fromRGBO(246, 242, 242, 1)
-                                )
-                            ),
-
-                            focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(4),
-                                borderSide: BorderSide(
-                                  color: Color.fromRGBO(42, 107, 225, 1),
-                                )
-                            ),
-                            labelText:"Recipes",
-                            labelStyle: TextStyle(
-                                color: Color.fromRGBO(42, 107, 225, 1)
-                            )
-                        )
-                    ),
-                    items: recipeList,
-                    popupProps: PopupProps.menu(
-                        showSearchBox: true,
-                        searchFieldProps: TextFieldProps(
-                          style: TextStyle(
-                          ),
-
-                        ),
-                        itemBuilder: (context, item, isSelected) {
-                          return ListTile(
-                            title: Text(item.recipeName),
-                          );
-                        }
-                    ),
-                    onChanged: (value) {
-                      selectedRecipe = value!;
-                      selectedFoodCategory = value.type;
-                      setState(() {
-                      });
-                      print(value);
-                    },
-                    validator: (value) {
-                      if(value==null || value.recipeName.isEmpty){
-                        return "Please select the recipe";
-                      }
-
-                      return null;
-                    },
-
-                  ),
-                ),
-
-                //Food type
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 10),
-                  child: DropdownSearch<FoodCategory>(
-                    itemAsString: (item) {
-                      return item.categoryName;
-                    },
-                    dropdownDecoratorProps: DropDownDecoratorProps(
-                      dropdownSearchDecoration: InputDecoration(
-                        filled: true,
-                        fillColor: Color.fromRGBO(246, 242, 242, 1),
-                        prefixIcon: Icon(Icons.search),
-                        prefixIconColor: Color.fromRGBO(224, 76, 43, 1),
-                        enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(4),
-                            borderSide: BorderSide(
-                                color: Color.fromRGBO(246, 242, 242, 1)
-                            )
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(4),
-                            borderSide: BorderSide(
-                              color: Color.fromRGBO(42, 107, 225, 1),
-                            )
-                        ),
-                        labelText:"Types",
-                        labelStyle: TextStyle(
-                            color: Color.fromRGBO(42, 107, 225, 1)
-                        )
-
-                      )
-                    ),
-                    items: foodCategoriesList,
-                    popupProps: PopupProps.menu(
-                      showSearchBox: true,
-                      searchFieldProps: TextFieldProps(
-                        style: TextStyle(
-                        ),
-                      ),
-                      itemBuilder: (context, item, isSelected) {
-                        return ListTile(
-                          title: Text(item.categoryName.toString()),
-                        );
-                      }
-                    ),
-
-
-                    onChanged: (value) {
-                      print(value);
-                    },
-                    selectedItem: selectedFoodCategory
-
-                  ),
-                ),
-
                 //Price
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 10),
@@ -325,7 +182,6 @@ class _ProductAddState extends State<ProductAdd> {
                     },
                   ),
                 ),
-
 
                 //Quantity
                 Padding(
@@ -365,6 +221,44 @@ class _ProductAddState extends State<ProductAdd> {
                   ),
                 ),
 
+                //how many items in the surprise pack
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 10),
+                  child: TextFormField(
+                    controller: _numOfItemsController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Color.fromRGBO(246, 242, 242, 1),
+                      labelStyle: TextStyle(
+                          color: Color.fromRGBO(42, 107, 225, 1)
+                      ),
+                      labelText: 'Number of items',
+                      prefixIcon: Icon(Icons.scatter_plot),
+                      prefixIconColor: Color.fromRGBO(224, 76, 43, 1),
+                      enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(4),
+                          borderSide: BorderSide(
+                              color: Color.fromRGBO(246, 242, 242, 1)
+                          )
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(4),
+                          borderSide: BorderSide(
+                            color: Color.fromRGBO(42, 107, 225, 1),
+                          )
+                      ),
+                    ),
+                    validator: (value) {
+                      if(value == null || value.trim().isEmpty){
+                        return "Please enter number of items in pack";
+                      }
+
+                      return null;
+                    },
+                  ),
+                ),
+
 
                 //Add product button
                 Padding(
@@ -382,26 +276,26 @@ class _ProductAddState extends State<ProductAdd> {
                     onPressed: () async {
                       if(_formKey.currentState!.validate()){
                         if(_image !=null){
-                          String result = await _businessL.addProduct(_nameController.text, _descriptionController.text, selectedRecipe!,
-                              selectedFoodCategory!, _priceController.text, _quantityController.text, _image);
+                          String result = await _businessL.addSurprisePack( _nameController.text, _descriptionController.text,
+                              _priceController.text, _quantityController.text, _numOfItemsController.text, _image);
 
                           if(result=="Success"){
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text("Food Item added"),
+                                content: Text("Food pack added"),
                               ),
                             );
                           }else{
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text("Something went wrong while Adding Food Item"),
+                                content: Text("Something went wrong while Adding Food pack"),
                               ),
                             );
                           }
                         }
                       }
                     },
-                    child: Text('Add Product',style: TextStyle(
+                    child: Text('Add pack',style: TextStyle(
                       fontWeight: FontWeight.bold
                     )),
                   ),

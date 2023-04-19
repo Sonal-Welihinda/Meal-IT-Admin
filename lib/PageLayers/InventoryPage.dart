@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:meal_it_admin/Classes/BL.dart';
 import 'package:meal_it_admin/Classes/FoodCategory.dart';
+import 'package:meal_it_admin/Classes/FoodProduct.dart';
+import 'package:meal_it_admin/Classes/SurprisePack.dart';
 import 'package:meal_it_admin/PageLayers/ProductAdd.dart';
+import 'package:meal_it_admin/PageLayers/ProductUpdate.dart';
+import 'package:meal_it_admin/PageLayers/SurprisePackAdd.dart';
+import 'package:meal_it_admin/PageLayers/SurprisePackUpdate.dart';
 import 'package:meal_it_admin/view_models/CategoryCard.dart';
 import 'package:meal_it_admin/view_models/ItemCard.dart';
 import 'package:meal_it_admin/view_models/ItemSupriceCard.dart';
@@ -26,8 +31,8 @@ class _InventoryPageState extends State<InventoryPage> {
 
   // List inventoryList = <Widget>[ItemCard(), CategoryCard() ,ItemSurpriseCard()];
   List<CategoryCard> categoryList = [];
-  List<ItemCard> itemList = [ItemCard()];
-  List<ItemSurpriseCard> itemSurpriseList = [ItemSurpriseCard()];
+  List<ItemCard> itemList = [];
+  List<ItemSurpriseCard> itemSurpriseList = [];
 
   List speedDialList = [];
 
@@ -38,6 +43,22 @@ class _InventoryPageState extends State<InventoryPage> {
     categoryList.clear();
     for (var element in foodcategories) {
       categoryList.add(CategoryCard(category: element,));
+    }
+  }
+
+  Future<void> getFoodPacks() async {
+    List<SurprisePack> foodPacks = await _businessL.getAllFoodPacks();
+    itemSurpriseList.clear();
+    for (var element in foodPacks) {
+      itemSurpriseList.add(ItemSurpriseCard(surprisePack: element,));
+    }
+  }
+
+  Future<void> getFoodProducts() async {
+    List<FoodProduct> foodProducts = await _businessL.getAllFoodProduct();
+    itemList.clear();
+    for (var element in foodProducts) {
+      itemList.add(ItemCard(foodProduct: element));
     }
   }
 
@@ -119,14 +140,14 @@ class _InventoryPageState extends State<InventoryPage> {
           )
       ),
       SpeedDialChild(
-          label: "Add Food suprices",
+          label: "Add surprise pack",
           child: IconButton(
             icon: Icon(Icons.food_bank),
             onPressed: () {
-              openDialog();
 
               setState(() {
                 isSpeedDialOpen.value = false;
+                Navigator.push(context, MaterialPageRoute(builder: (context) => SurprisePackAdd(),));
               });
 
             },
@@ -135,6 +156,8 @@ class _InventoryPageState extends State<InventoryPage> {
     ];
 
     getFoodCategories();
+    getFoodPacks();
+    getFoodProducts();
 
   }
 
@@ -203,7 +226,26 @@ class _InventoryPageState extends State<InventoryPage> {
               child: ListView.builder(
                 itemCount: currentList == 0 ? itemList.length:(currentList ==1 ? categoryList.length : itemSurpriseList.length),
                 itemBuilder: (context, index) {
-                  return currentList == 0 ? itemList[index]:(currentList ==1 ? categoryList[index] : itemSurpriseList[index]) ;
+                  return GestureDetector(
+                    onTap: () {
+                      StatefulWidget test;
+                      if (currentList == 0) {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => ProductUpdate(foodProduct: itemList[index].foodProduct),)
+                        );
+                      } else if(currentList ==1){
+                        test = categoryList[index];
+
+                      }else{
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => SurprisePackUpdate(surprisePack: itemSurpriseList[index].surprisePack),)
+                        );
+                      }
+                    },
+                    child: currentList == 0 ? itemList[index]:(currentList ==1 ? categoryList[index] : itemSurpriseList[index]) ,
+                  );
                 },
               ),
             ),
@@ -219,13 +261,13 @@ class _InventoryPageState extends State<InventoryPage> {
             color: Colors.black
           ),
           children: [
-            currentList ==0 ? speedDialList[0]:(currentList==1 ? speedDialList[1]: speedDialList[0]),
-            currentList ==0 ? speedDialList[2]:(currentList==1 ? speedDialList[2]: speedDialList[1]),
+            currentList ==0 ? speedDialList[0]:(currentList==1 ? speedDialList[2]: speedDialList[0]),
+            currentList ==0 ? speedDialList[2]:(currentList==1 ? speedDialList[1]: speedDialList[1]),
             currentList ==0 ? speedDialList[4]:(currentList==1 ? speedDialList[3]: speedDialList[5]),
 
-            // !IsCategories ? SpeedDialChild(
-            //     label: "Food Categories",
-            //     child: IconButton(
+            // !IsCategories ? SpeedDialChild(     food category , supries, add item
+            //     label: "Food Categories",    product , category, add category
+            //     child: IconButton(         food category, product add supries
             //       icon: Icon(Icons.category),
             //
             //       onPressed: () {

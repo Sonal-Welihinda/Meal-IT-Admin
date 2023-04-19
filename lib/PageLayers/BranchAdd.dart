@@ -54,8 +54,6 @@ class _BranchAddState extends State<BranchAdd> {
       return;
     }
 
-
-
     String respond =await _businessL.createBranch(
         _name.text,_phoneNumber.text,_address.text,_longitude.text,_latitude.text);
 

@@ -43,6 +43,13 @@ class Recipe{
 
   }
 
+  Map<String, dynamic> productToJson() {
+    return {
+      'RecipeName': recipeName,
+      'docID':docID,
+    };
+  }
+
   factory Recipe.fromSnapshot(DocumentSnapshot snapshot){
     return Recipe.create(
       recipeName: snapshot.get("RecipeName"),
@@ -55,6 +62,14 @@ class Recipe{
       recipeImage: snapshot.get("RecipeImage"),
       servings:  snapshot.get("Servings")
     );
+  }
+
+  factory Recipe.productFromSnapshot(Map<String, dynamic> snapshot){
+    Recipe recipe = Recipe.empty();
+    recipe.recipeName = snapshot["RecipeName"];
+    recipe.docID = snapshot["docID"];
+
+    return recipe;
   }
 
 }

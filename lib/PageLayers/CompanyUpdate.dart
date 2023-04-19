@@ -288,7 +288,7 @@ class _CompanyUpdateState extends State<CompanyUpdate> {
                                 if(_companyNameController.text != widget.company.companyName ){
                                   if(_companyNameController.text.trim().isNotEmpty){
                                     widget.company.companyName = _companyNameController.text;
-                                    String result = await _businessL.UpdateCompanyField(widget.company.uID, "CompanyName", _companyNameController.text);
+                                    String result = await _businessL.updateCompanyField(widget.company.uID, "CompanyName", _companyNameController.text);
 
                                     if(result=="Success"){
                                       showSnackBar("Company name has successfully updated");
@@ -395,7 +395,7 @@ class _CompanyUpdateState extends State<CompanyUpdate> {
                                 if(_companyPhoneNumberController.text != widget.company.phoneNumber ){
                                   if(_companyPhoneNumberController.text.trim().isNotEmpty){
                                     widget.company.phoneNumber = _companyPhoneNumberController.text;
-                                    String result = await _businessL.UpdateCompanyField(widget.company.uID, "PhoneNumber", _companyPhoneNumberController.text);
+                                    String result = await _businessL.updateCompanyField(widget.company.uID, "PhoneNumber", _companyPhoneNumberController.text);
 
                                     if(result=="Success"){
                                       showSnackBar("Company phone number has successfully updated");
@@ -487,7 +487,7 @@ class _CompanyUpdateState extends State<CompanyUpdate> {
                                 if(_companyLocationController.text != widget.company.address ){
                                   if(_companyLocationController.text.trim().isNotEmpty){
                                     widget.company.address = _companyLocationController.text;
-                                    String result = await _businessL.UpdateCompanyField(widget.company.uID, "Address", _companyLocationController.text);
+                                    String result = await _businessL.updateCompanyField(widget.company.uID, "Address", _companyLocationController.text);
 
                                     if(result=="Success"){
                                       showSnackBar("Company address has successfully updated");

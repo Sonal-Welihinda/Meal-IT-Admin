@@ -33,4 +33,11 @@ class FoodCategory{
     );
   }
 
+  factory FoodCategory.fromSnapshot3(Map<String, dynamic> snapshot){
+    return FoodCategory.name(
+      categoryName: snapshot["FoodCategoryName"],
+      docID: snapshot["FoodCategoryID"],
+    );
+  }
+
 }

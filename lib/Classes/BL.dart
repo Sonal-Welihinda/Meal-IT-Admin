@@ -10,13 +10,24 @@ import 'package:meal_it_admin/Classes/FoodProduct.dart';
 import 'package:meal_it_admin/Classes/IngredientItem.dart';
 import 'package:meal_it_admin/Classes/Recipe.dart';
 import 'package:meal_it_admin/Classes/Rider.dart';
+import 'package:meal_it_admin/Classes/SurprisePack.dart';
 import 'package:meal_it_admin/Services/FirebaseDBService.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BusinessLayer{
 
 
   FirebaseDBServices _dbServices = FirebaseDBServices();
+  static late SharedPreferences? prefs=null;
 
+  Future<String> updateImage(String url, File img) async {
+    String? result = await _dbServices.UpdateImage(url,img);
+    if(result == null){
+      return "failed";
+    }else{
+      return "Success";
+    }
+  }
 
   Future<void> deleteImage(String imageUrl) async {
     try {
@@ -26,6 +37,18 @@ class BusinessLayer{
       print('Error deleting image: $e');
       // Handle the error as needed
     }
+  }
+
+  Future<String> loadSavedValue(field) async {
+    prefs ??= await SharedPreferences.getInstance();
+    String  userType = prefs!.getString(field) ?? '';
+
+    return userType;
+  }
+
+  Future<void> _saveValue(String field,String value) async {
+    prefs ??= await SharedPreferences.getInstance();
+    await prefs!.setString(field, value);
   }
 
   // Future<bool> emailAvailability(){
@@ -59,7 +82,6 @@ class BusinessLayer{
   Future<String> createAdmin(String name, String address,String phoneNumber,String gender,File img,String accountType,String email,String password,Branch branch) async {
     try {
 
-
       String? imageUrl = await _dbServices.UploadImage('images/${DateTime.now()}.png', img);
 
       if(imageUrl == null){
@@ -78,7 +100,7 @@ class BusinessLayer{
       admin.accountType = accountType;
       admin.email = email;
       admin.password = "test1234";
-      if(accountType=="Branch-Admin"){admin.branchID = branch.uid;};
+      if(accountType=="Branch-Admin"){admin.branchID = branch.uid;}
 
       await _dbServices.createAdmin(admin,uid!);
       return "Success";
@@ -108,7 +130,17 @@ class BusinessLayer{
 
 
   Future<List<Admin>> getAllAdmins() async {
-    return _dbServices.getAllAdmins();
+    // String currentUserID = await loadSavedValue("UserID")
+    String currentUserType = await loadSavedValue("AccountType");
+    if(currentUserType== "AdminHQ"){
+      return _dbServices.getAllAdmins();
+    }else if(currentUserType== "Branch-Admin"){
+      String branchID = await loadSavedValue("BranchID");
+      return _dbServices.getAllBranchAdmins(branchID);
+    }
+
+
+    return [];
   }
 
 
@@ -117,7 +149,28 @@ class BusinessLayer{
   }
 
   Future<String> getUserType(String? uid) async {
-    return _dbServices.getUserType(uid);
+    DocumentSnapshot<Object?>? snapshot = await _dbServices.getUser(uid);
+
+    Map<String,dynamic> data = snapshot?.data() as Map<String,dynamic>;
+
+    if(!data.containsKey("AccountType")){
+      return "failed";
+    }
+
+    if(data["AccountType"] == "AdminHQ"){
+      await _saveValue("AccountType",data["AccountType"].toString());
+      await _saveValue("UserID",snapshot!.id);
+      return "AdminHQ";
+    }
+
+    if(data["AccountType"] == "Branch-Admin"){
+      await _saveValue("AccountType",data["AccountType"].toString());
+      await _saveValue("UserID",snapshot!.id);
+      await _saveValue("BranchID",data["BranchID"].toString());
+      return "Branch-Admin";
+    }
+
+    return "";
   }
 
 
@@ -183,9 +236,17 @@ class BusinessLayer{
   }
 
   Future<List<Rider>> getAllRiders() async {
-    return _dbServices.getAllRiders();
-  }
+    //TODO check overrides
+    String currentUserType = await loadSavedValue("AccountType");
+    if(currentUserType== "AdminHQ"){
+      return _dbServices.getAllRiders();
+    }else if(currentUserType== "Branch-Admin"){
+      String branchID = await loadSavedValue("BranchID");
+      return _dbServices.getAllBranchRiders(branchID);
+    }
 
+    return [];
+  }
 
   Future<String> createCompany(String email,String password,String companyName,String address,String phoneNumber,File img) async {
     try {
@@ -195,8 +256,6 @@ class BusinessLayer{
       if(companyImgUrl == null){
         return "failed";
       }
-
-
 
       Company company =Company.create(
           email: email,
@@ -231,7 +290,7 @@ class BusinessLayer{
     return _dbServices.getAllCompanies();
   }
 
-  Future<String> UpdateCompanyField(String uid,String fieldName,String value) async {
+  Future<String> updateCompanyField(String uid,String fieldName,String value) async {
 
     return _dbServices.UpdateCompanyField(uid, fieldName, value);
   }
@@ -243,7 +302,7 @@ class BusinessLayer{
     }
     deleteImage(oldUrl);
 
-    String result = await UpdateCompanyField(uid,"CompanyImageUrl",imgUrl);
+    String result = await updateCompanyField(uid,"CompanyImageUrl",imgUrl);
 
     if(result == "Success"){
       return "Success";
@@ -319,7 +378,9 @@ class BusinessLayer{
     return result;
   }
 
-  Future<String> addProduct(String foodName,String foodDescription,String recipeID,String foodType,String price,String quantity,File? img) async {
+  //Product
+  //
+  Future<String> addProduct(String foodName,String foodDescription,Recipe recipe,FoodCategory foodType,String price,String quantity,File? img) async {
     if(img == null){
 
       return "failed";
@@ -330,13 +391,22 @@ class BusinessLayer{
       return "failed";
     }
 
+    String branchID = await loadSavedValue("BranchID");
+
+    if(branchID==null  || branchID.trim().isEmpty){
+      return "failed";
+    }
+
     FoodProduct foodProduct = FoodProduct.create(
         foodName: foodName,
         foodDescription: foodDescription,
-        foodRecipe: recipeID,
+        foodRecipe: recipe,
         foodTypes: foodType,
         price: BigInt.parse(price),
-        quantity: BigInt.parse(quantity)
+        quantity: BigInt.parse(quantity),
+        imgUrl: imgUrl,
+        branchID: branchID
+
     );
 
     String result = await _dbServices.addProduct(foodProduct);
@@ -344,5 +414,69 @@ class BusinessLayer{
 
     return result;
   }
+
+  Future<String> updateFoodProductFields(String uid,String fieldName, value) async {
+
+    return _dbServices.updateFoodProductField(uid, fieldName, value);
+  }
+
+  Future<List<FoodProduct>> getAllFoodProduct() async {
+    String branchID = await loadSavedValue("BranchID");
+    if(branchID==null || branchID.trim().isEmpty){
+      return Future.value(null);
+    }
+
+    return _dbServices.getAllFoodProduct(branchID);
+  }
+
+
+  //Surprise pack
+  Future<String> addSurprisePack(String foodPackName,String foodPackDescription,String price,String quantity,String numberOfItems,File? img) async {
+    if(img == null){
+
+      return "failed";
+    }
+    String? imgUrl = await _dbServices.UploadImage('Products/${DateTime.now()}.png',img);
+
+    if(imgUrl == null || imgUrl.trim().isEmpty ){
+      return "failed";
+    }
+
+    String branchID = await loadSavedValue("BranchID");
+
+    if(branchID==null  || branchID.trim().isEmpty){
+      return "failed";
+    }
+
+    SurprisePack surprisePack = SurprisePack.name(
+        packName: foodPackName,
+        packDescription: foodPackDescription,
+        quantity: BigInt.parse(quantity),
+        price: BigInt.parse(price),
+        numberOfItems: BigInt.parse(numberOfItems),
+        branchID: branchID,
+        imageUrl: imgUrl
+    );
+
+    String result = await _dbServices.addSurprisePack(surprisePack);
+
+
+    return result;
+  }
+
+  Future<List<SurprisePack>> getAllFoodPacks() async {
+    String branchID = await loadSavedValue("BranchID");
+    if(branchID==null || branchID.trim().isEmpty){
+      return Future.value(null);
+    }
+
+    return _dbServices.getAllFoodPacks(branchID);
+  }
+
+  Future<String> updateFoodPackField(String uid,String fieldName, value) async {
+
+    return _dbServices.updateFoodPackField(uid, fieldName, value);
+  }
+
 
 }
