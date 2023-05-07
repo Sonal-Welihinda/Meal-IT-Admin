@@ -5,6 +5,7 @@ import 'package:meal_it_admin/Classes/User.dart';
 class Rider extends User{
   late String phoneNumber,gender,name,accountType,branchID,address;
   late String img;
+  late String status;
 
 
   Rider ({required this.name,required this.gender,required this.phoneNumber,required this.address,
@@ -22,7 +23,7 @@ class Rider extends User{
       'AccountType': accountType,
       'BranchID': branchID,
       'ImageUrl': img,
-
+      'status':status
 
     };
   }
@@ -36,7 +37,7 @@ class Rider extends User{
         accountType: snapshot.get("AccountType"),
         gender : snapshot.get("Gender") ,
         branchID: snapshot.get("BranchID"),
-        img: snapshot.get("ImageUrl")
+        img: snapshot.get("ImageUrl"),
     );
   }
 

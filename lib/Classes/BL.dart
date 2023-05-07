@@ -2,15 +2,19 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:meal_it_admin/Classes/Admin..dart';
 import 'package:meal_it_admin/Classes/Branch.dart';
 import 'package:meal_it_admin/Classes/Company.dart';
+import 'package:meal_it_admin/Classes/CustomerOrder.dart';
+import 'package:meal_it_admin/Classes/DispatchTimes.dart';
 import 'package:meal_it_admin/Classes/FoodCategory.dart';
 import 'package:meal_it_admin/Classes/FoodProduct.dart';
 import 'package:meal_it_admin/Classes/IngredientItem.dart';
 import 'package:meal_it_admin/Classes/Recipe.dart';
 import 'package:meal_it_admin/Classes/Rider.dart';
 import 'package:meal_it_admin/Classes/SurprisePack.dart';
+import 'package:meal_it_admin/PageLayers/DeliveryDispatch.dart';
 import 'package:meal_it_admin/Services/FirebaseDBService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -59,7 +63,9 @@ class BusinessLayer{
 
 
   Future<String> createBranch(String name,String phoneNumber,String address,String longitude ,String latitude) async {
-    Branch branch =Branch.createOne(name,phoneNumber,address,double.parse(longitude),double.parse(latitude));
+    GeoPoint geoPoint = GeoPoint(double.parse(latitude), double.parse(longitude));
+
+    Branch branch =Branch.createOne(name,phoneNumber,address,geoPoint);
 
     try {
       String result = await _dbServices.createBranch(branch);
@@ -170,6 +176,13 @@ class BusinessLayer{
       return "Branch-Admin";
     }
 
+    if(data["AccountType"] == "Rider"){
+      await _saveValue("AccountType",data["AccountType"].toString());
+      await _saveValue("UserID",snapshot!.id);
+      await _saveValue("BranchID",data["BranchID"].toString());
+      return "Rider";
+    }
+
     return "";
   }
 
@@ -197,6 +210,7 @@ class BusinessLayer{
     rider.email = email;
     rider.password = "test1234";
     rider.branchID = branch.uid;
+    rider.status = "Available";
 
     try {
       UserCredential user = await _dbServices.createUserWithEmailAndPassword(
@@ -212,10 +226,16 @@ class BusinessLayer{
       await _dbServices.createRiders(rider);
       return "Success";
     } on FirebaseException catch (e) {
+      print(e);
       return "Failed";
     }
 
 
+  }
+
+  Future<Rider> getLoginRider() async {
+    String riderID = await loadSavedValue("UserID");
+    return _dbServices.getRiderByID(riderID);
   }
 
   Future<String> UpdateRiders(Rider rider, File? img) async {
@@ -246,6 +266,14 @@ class BusinessLayer{
     }
 
     return [];
+  }
+
+  Future<List<Rider>> getAllAvailableRiders() async {
+    //TODO check overrides
+    // String currentUserType = await loadSavedValue("AccountType");
+
+    String branchID = await loadSavedValue("BranchID");
+    return _dbServices.getAllAvailableBranchRiders(branchID);
   }
 
   Future<String> createCompany(String email,String password,String companyName,String address,String phoneNumber,File img) async {
@@ -329,6 +357,10 @@ class BusinessLayer{
 
 //  Food recipe implementation
   Future<String> createRecipe( String recipeName,String recipeDescription, FoodCategory category,String time,List<IngredientItem> ingredientList,List<String> steps,int servings,File? img) async {
+
+    // firebase
+
+
     if(img == null){
 
       return "failed";
@@ -393,7 +425,7 @@ class BusinessLayer{
 
     String branchID = await loadSavedValue("BranchID");
 
-    if(branchID==null  || branchID.trim().isEmpty){
+    if(branchID.trim().isEmpty){
       return "failed";
     }
 
@@ -422,7 +454,7 @@ class BusinessLayer{
 
   Future<List<FoodProduct>> getAllFoodProduct() async {
     String branchID = await loadSavedValue("BranchID");
-    if(branchID==null || branchID.trim().isEmpty){
+    if(branchID.trim().isEmpty){
       return Future.value(null);
     }
 
@@ -444,7 +476,7 @@ class BusinessLayer{
 
     String branchID = await loadSavedValue("BranchID");
 
-    if(branchID==null  || branchID.trim().isEmpty){
+    if(branchID.trim().isEmpty){
       return "failed";
     }
 
@@ -466,7 +498,7 @@ class BusinessLayer{
 
   Future<List<SurprisePack>> getAllFoodPacks() async {
     String branchID = await loadSavedValue("BranchID");
-    if(branchID==null || branchID.trim().isEmpty){
+    if(branchID.trim().isEmpty){
       return Future.value(null);
     }
 
@@ -478,5 +510,107 @@ class BusinessLayer{
     return _dbServices.updateFoodPackField(uid, fieldName, value);
   }
 
+
+//  Delivery dispatch times
+
+  Future<String> addDispatchTime(DispatchTimes times) async{
+
+    String result = await _dbServices.addDeliveryDispatch(times);
+
+
+    return result;
+  }
+
+  Future<String> updateDispatchTime(DispatchTimes times) async{
+
+    String result = await _dbServices.updateDeliveryDispatch(times);
+
+
+    return result;
+  }
+
+  Future<List<DispatchTimes>> getAllDispatchTimes() async{
+    return _dbServices.getAllDeliveryDispatch();
+  }
+
+  Future<List<DispatchTimes>> getAllActiveDispatchTimes() async{
+    return _dbServices.getAllActiveDeliveryDispatch();
+  }
+
+  DispatchTimes? getJustPassedTime(List<DispatchTimes> times) {
+    TimeOfDay now = TimeOfDay.now();
+    DateTime dateTime = DateTime.now();
+    DateTime currentDateTime = DateTime(dateTime.year, dateTime.month, dateTime.day, now.hour, now.minute);
+
+    times.sort((a, b) {
+      DateTime aDateTime = DateTime(dateTime.year, dateTime.month, dateTime.day, a.finishingTime.hour, a.finishingTime.minute);
+      DateTime bDateTime = DateTime(dateTime.year, dateTime.month, dateTime.day, b.finishingTime.hour, b.finishingTime.minute);
+      return aDateTime.compareTo(bDateTime);
+    });
+
+    for (int i = 0; i < times.length; i++) {
+      DispatchTimes time = times[i];
+      DateTime timeDateTime = DateTime(dateTime.year, dateTime.month, dateTime.day, time.finishingTime.hour, time.finishingTime.minute);
+
+      if (timeDateTime.isAfter(currentDateTime)) {
+        if (i == 0) {
+          return null;
+        } else {
+          return times[i - 1];
+        }
+      }
+    }
+
+    return times.last;
+  }
+
+
+  Future<void> assignOrderToRiders() async {
+    List<Rider> avaRiders = await getAllAvailableRiders();
+
+    if(avaRiders.isEmpty){
+      print("rider empty");
+      return;
+    }
+
+    List<DispatchTimes> times = await getAllActiveDispatchTimes();
+
+    DispatchTimes? justPass = getJustPassedTime(times);
+
+    if(justPass==null){
+      if(times[0]==null){
+        return;
+      }
+
+      justPass = times[0];
+    }
+
+  //  get order acording to time
+    List<CustomerOrder> orders = await _dbServices.getOrderByTimeID(justPass.docID);
+
+    // avaRiders
+    //Driver id eka assign karanna and driverla 0 nam return
+    for (var order in orders) {
+      order.driverID = avaRiders[0].uID;
+      order.driverName = avaRiders[0].name;
+      order.status = "WaitingForDelivery";
+      await _dbServices.updateOrder(order);
+    }
+    List<CustomerOrder> standardOrder = await _dbServices.getOrderByStandard();
+
+    //take other available drivers and assign them to standard orders
+    for (var i = 1; i < avaRiders.length; i++) {
+      standardOrder[i-1].driverID = avaRiders[i].uID;
+      standardOrder[i-1].driverName = avaRiders[i].name;
+      await _dbServices.updateOrder(standardOrder[i-1]);
+    }
+
+  }
+
+
+  Future<List<CustomerOrder>> getOrderByDriverID() async {
+    String riderID = await loadSavedValue("UserID");
+    return _dbServices.getOrderByDriverID(riderID);
+  }
 
 }

@@ -7,6 +7,11 @@ import 'package:meal_it_admin/Classes/BL.dart';
 import 'package:meal_it_admin/Classes/FoodCategory.dart';
 import 'package:meal_it_admin/Classes/IngredientItem.dart';
 import 'package:meal_it_admin/Classes/Recipe.dart';
+import 'dart:convert';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+import 'package:archive/archive.dart';
 
 class RecipeAdd extends StatefulWidget {
   const RecipeAdd({Key? key}) : super(key: key);
@@ -47,6 +52,36 @@ class _RecipeAddState extends State<RecipeAdd> {
 
   }
 
+  void importFileData() async{
+    void extractZipFileContents(List<int> bytes) {
+      final archive = ZipDecoder().decodeBytes(bytes);
+      for (final file in archive) {
+        if (file.isFile && file.name.endsWith('.csv')) {
+          final csvBytes = file.content as List<int>;
+          final csvString = String.fromCharCodes(csvBytes);
+          final csvLines = csvString.split('\n');
+          for (final csvLine in csvLines) {
+            final imageName = csvLine.trim();
+            final imageFile = archive.files.firstWhere(
+                  (file) => file.isFile && file.name.endsWith(imageName),
+              orElse: () => null,
+            );
+            if (imageFile != null) {
+              final imageBytes = imageFile.content as List<int>;
+              // pass imageBytes to a class here
+            }
+          }
+        }
+      }
+    }
+
+    var request = http.MultipartRequest('POST', Uri.parse('https://your-upload-url.com'));
+    request.files.add(await http.MultipartFile.fromPath('file', '/path/to/your/zip/file'));
+    var response = await request.send();
+    if (response.statusCode == 200){
+      extractZipFileContents();
+    }
+  }
 
   Future<void> createRecipe() async {
     if(!formValidated){
@@ -78,6 +113,8 @@ class _RecipeAddState extends State<RecipeAdd> {
           content: Text("Recipe successfully created"),
         ),
       );
+
+      Navigator.pop(context);
     }else{
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -109,6 +146,17 @@ class _RecipeAddState extends State<RecipeAdd> {
             key: _formKey,
             child: Column(
               children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton(
+                        onPressed: () {
+                          importFileData();
+                        },
+                        child: Icon(Icons.file_open)
+                    ),
+                  ],
+                ),
                 //Recipe name
                 TextFormField(
                   controller: _nameController,

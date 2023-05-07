@@ -10,7 +10,7 @@ class Company extends User{
   Company(super.email);
 
   Company.create({this.companyImage,this.companyImgUrl="",password,uID,required email,required this.companyName,required this.address,required this.phoneNumber} )
-      : super.emailAndPass(email: email,password: password,uID: uID);
+      : super.emailAndPass(email: email,password: password,uID: uID??"");
 
   Company.view({this.companyImage,this.companyImgUrl="",uID,required email,required this.companyName,required this.address,required this.phoneNumber} )
       : super.emailAndPass(email: email,uID: uID);

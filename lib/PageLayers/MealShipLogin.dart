@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:meal_it_admin/Admin_home_tablayout.dart';
 import 'package:meal_it_admin/Classes/BL.dart';
 import 'package:meal_it_admin/PageLayers/AdminUsersPage.dart';
+import 'package:meal_it_admin/PageLayers/RiderHomePage.dart';
 import 'package:meal_it_admin/Services/FirebaseDBService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -104,6 +105,19 @@ class _MealShipLoginState extends State<MealShipLogin> {
                             MaterialPageRoute(
                                 settings: RouteSettings(name: '/AdminHome'),
                                 builder: (context) => Admin_home_tablayout()
+                            ),
+                          );
+                        }else if (type.trim() == "Rider"){
+                          await _saveValue("AccountType", type);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Success fully login as "+type)),
+                          );
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                settings: RouteSettings(name: '/RiderHome'),
+                                builder: (context) => RiderHomePage()
                             ),
                           );
                         }else{

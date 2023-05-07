@@ -97,7 +97,7 @@ class _CompanyAddState extends State<CompanyAdd> {
                       width: double.infinity,
                       decoration: BoxDecoration(
                         image: DecorationImage(
-                          image: companyImage != null ? !kIsWeb? Image.file(companyImage!).image: Image.network(companyImage!.path).image : Image.asset('assets/Images/dog.jpg').image,
+                          image: companyImage != null ? !kIsWeb? Image.file(companyImage!).image: Image.network(companyImage!.path).image : Image.asset('assets/Images/backgroundM.jpg').image,
                           fit: BoxFit.cover
                         ),
                         color: Colors.grey[300],

@@ -2,12 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Branch{
   late String _uid;
+  late String _companyID;
   late String _name;
   late String _phoneNumber;
   late String _address;
-  late double _longitude;
-  late double _latitude;
 
+  late GeoPoint _location;
+  late int _userCount =0;
+  Map<String, dynamic> geoInfo = {};
 
   String get uid => _uid;
 
@@ -23,17 +25,7 @@ class Branch{
 
   String get phoneNumber => _phoneNumber;
 
-  double get latitude => _latitude;
 
-  set latitude(double value) {
-    _latitude = value;
-  }
-
-  double get longitude => _longitude;
-
-  set longitude(double value) {
-    _longitude = value;
-  }
 
   String get address => _address;
 
@@ -45,11 +37,27 @@ class Branch{
     _phoneNumber = value;
   }
 
-  Branch({ uID, required String name,required String address,required String phoneNumber,required double longitude,required double latitude}): _name = name,_phoneNumber= phoneNumber,_address = address,
-        _longitude = longitude, _latitude = latitude, _uid  = uID;
 
-  Branch.createOne(this._name,this._phoneNumber,this._address,this._longitude,
-      this._latitude);
+  GeoPoint get location => _location;
+
+  set location(GeoPoint value) {
+    _location = value;
+  }
+
+  int get userCount => _userCount;
+
+  set userCount(int value) {
+    _userCount = value;
+  }
+
+  Branch({ uID, required String name,
+    required String address,required String phoneNumber,
+    required GeoPoint location,
+    String companyID="", int userCount=0
+  }): _name = name,_phoneNumber= phoneNumber,_address = address,
+        _location = location, _uid  = uID??="",_companyID = companyID??="", _userCount=userCount;
+
+  Branch.createOne(this._name,this._phoneNumber,this._address,this._location);
 
 
   Map<String , dynamic> toJson(){
@@ -57,8 +65,10 @@ class Branch{
       'Name': _name,
       'address': _address,
       'phoneNumber': _phoneNumber,
-      'longitude': _longitude,
-      'latitude': _latitude,
+      if(_companyID!=null) 'location': _location,
+      'companyID': _companyID,
+      'userCount':_userCount,
+      'geoInfo':geoInfo,
     };
   }
 
@@ -68,10 +78,12 @@ class Branch{
       name: snapshot.get("Name"),
       address: snapshot.get("address"),
       phoneNumber: snapshot.get("phoneNumber"),
-      longitude: snapshot.get("longitude") ,
-      latitude: snapshot.get("latitude"),
+      location: snapshot.get("location") ,
+      // companyID: snapshot.get("companyID"),
+      // userCount: snapshot.get("userCount")
     );
   }
 
+//  Change branch lat and long to location and remove lat lan and add geo info box
 
 }

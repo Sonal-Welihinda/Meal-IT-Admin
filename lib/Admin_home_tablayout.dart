@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:meal_it_admin/Classes/BL.dart';
 import 'package:meal_it_admin/PageLayers/AdminUsersPage.dart';
 import 'package:meal_it_admin/PageLayers/BranchPage.dart';
+import 'package:meal_it_admin/PageLayers/DeliveryDispatch.dart';
 import 'package:meal_it_admin/PageLayers/InventoryPage.dart';
 import 'package:meal_it_admin/PageLayers/MealShipLogin.dart';
 import 'package:meal_it_admin/PageLayers/RecipePage.dart';
@@ -40,6 +41,7 @@ class _Admin_home_tablayout extends State<Admin_home_tablayout> {
     RecipePage(homeScaffoldState: sacfFold),
     AdminUsers(sacfFoldStatekey: sacfFold),
     BranchPage(sacfFoldStatekey: sacfFold),
+    DeliveryDispatchPage(sacfFoldStatekey: sacfFold)
   ];
 
   @override
@@ -114,6 +116,17 @@ class _Admin_home_tablayout extends State<Admin_home_tablayout> {
               onTap: () {
                 setState(() {
                   index = 3;
+                });
+              },
+
+            ),
+
+            ListTile(
+              leading: Icon(Icons.local_shipping),
+              title: Text('Dispatch'),
+              onTap: () {
+                setState(() {
+                  index = 4;
                 });
               },
 

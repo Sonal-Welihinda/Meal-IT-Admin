@@ -85,18 +85,20 @@ class _RiderAddState extends State<RiderAdd> {
   Future<void> createRider() async {
 
     if(profilePic == null){
-      return;
-
-    }
-
-    if(_nameController.text.isEmpty || imageUrl == null || imageUrl.isEmpty || selectedBranch == null){
+      print("image return");
       return;
     }
 
-    _businessL.createRiders(_nameController.text,_addressController.text,_phoneController.text,_gender.name,profilePic!,_emailController.text,"test1234",selectedBranch!).then((value) => {
+    if(_nameController.text.isEmpty || imageUrl == null || selectedBranch == null){
+      print("fdfdf return");
+      return;
+    }
+
+    await _businessL.createRiders(_nameController.text,_addressController.text,_phoneController.text,_gender.name,profilePic!,_emailController.text,"test1234",selectedBranch!).then((value) => {
       Navigator.pop(context)
     });
 
+    print("test 1");
 
   }
 
@@ -129,6 +131,7 @@ class _RiderAddState extends State<RiderAdd> {
   Future<void> specifyUserFunctions() async {
     await getBranches();
     String type = await _businessL.loadSavedValue("AccountType");
+    print(type);
     if(type=="Branch-Admin"){
       String branchID = await _businessL.loadSavedValue("BranchID");
       accType="Branch-Admin";
@@ -250,15 +253,16 @@ class _RiderAddState extends State<RiderAdd> {
 
               DropdownSearch<Branch>(
                 enabled: !(accType=="Branch-Admin"),
-                  selectedItem: selectedBranch??null,
                   onChanged: (value) {
+                  print("fgdfgd");
+                    if(value!=null){
+                      selectedBranch = value;
+                      isBranchAssigned =true;
+                    }else{
+                      isBranchAssigned =false;
+                    }
                     setState(() {
-                      if(value!=null){
-                        selectedBranch = value;
-                        isBranchAssigned =true;
-                      }else{
-                        isBranchAssigned =false;
-                      }
+
 
                     });
                   },
@@ -378,8 +382,8 @@ class _RiderAddState extends State<RiderAdd> {
               // Create Admin button
               ElevatedButton(
 
-                style: ButtonStyle(
-
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color.fromRGBO(224, 76, 43, 1),
                 ),
                 onPressed: () {
                   createRider();

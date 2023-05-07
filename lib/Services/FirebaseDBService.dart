@@ -7,6 +7,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:meal_it_admin/Classes/Admin..dart';
 import 'package:meal_it_admin/Classes/Branch.dart';
 import 'package:meal_it_admin/Classes/Company.dart';
+import 'package:meal_it_admin/Classes/CustomerOrder.dart';
+import 'package:meal_it_admin/Classes/DispatchTimes.dart';
 import 'package:meal_it_admin/Classes/FoodCategory.dart';
 import 'package:meal_it_admin/Classes/FoodProduct.dart';
 import 'package:meal_it_admin/Classes/Recipe.dart';
@@ -28,7 +30,8 @@ class FirebaseDBServices implements BranchInterface,AdminInterface,RiderInterfac
   final companyDocRef = FirebaseFirestore.instance.collection('Collab-Branches');
   final foodProductDocRef = FirebaseFirestore.instance.collection('Food-Product');
   final surprisePackDocRef = FirebaseFirestore.instance.collection('Surprise-Pack');
-
+  final deliveryTimeDocRef = FirebaseFirestore.instance.collection('Delivery-Dispatch');
+  final orderDocRef = FirebaseFirestore.instance.collection('Orders');
 
   //common methods
   Future<UserCredential> createUserWithEmailAndPassword(String email,String password) async {
@@ -265,6 +268,16 @@ class FirebaseDBServices implements BranchInterface,AdminInterface,RiderInterfac
   }
 
   @override
+  Future<List<Rider>> getAllAvailableBranchRiders(String branchID) async {
+    QuerySnapshot querySnapshot = await userDocRef.where('AccountType', whereIn: ['Rider'])
+        .where('BranchID',isEqualTo: branchID).where('status',isEqualTo: "Available").get();
+    List<Rider> Riders = querySnapshot.docs.map((doc) => Rider.fromSnapshot(doc)).toList();
+
+    return Riders;
+
+  }
+
+  @override
   Future<String> UpdateRider(Rider rider) async {
     try {
       if(rider.uID.trim().isEmpty){
@@ -292,6 +305,14 @@ class FirebaseDBServices implements BranchInterface,AdminInterface,RiderInterfac
       print(e);
       return "failed";
     }
+  }
+
+  @override
+  Future<Rider> getRiderByID(String userID) async {
+    DocumentSnapshot documentSnapshot = await userDocRef.doc(userID).get();
+    Rider Riders = Rider.fromSnapshot(documentSnapshot);
+
+    return Riders;
   }
 
 
@@ -330,7 +351,7 @@ class FirebaseDBServices implements BranchInterface,AdminInterface,RiderInterfac
 
   @override
   Future<List<Company>> getAllCompanies() async {
-    QuerySnapshot querySnapshot = await userDocRef.where('AccountType', whereIn: ['CollabCompany']).get();
+    QuerySnapshot querySnapshot = await userDocRef.where('AccountType', whereIn: ['ColabCompany']).get();
     List<Company> companies = querySnapshot.docs.map((doc) => Company.fromSnapshot(doc)).toList();
 
     return companies;
@@ -491,5 +512,109 @@ class FirebaseDBServices implements BranchInterface,AdminInterface,RiderInterfac
       return "failed";
     }
   }
+
+
+  @override
+  Future<String> addDeliveryDispatch(DispatchTimes dispatchTimes) async {
+    try{
+      await deliveryTimeDocRef.doc().set(dispatchTimes.toJson());
+      return "Success";
+
+    }on FirebaseException catch (e){
+      print(e);
+      return "failed";
+    }
+  }
+
+
+  @override
+  Future<String> updateDeliveryDispatch(DispatchTimes dispatchTimes) async {
+    try{
+      await deliveryTimeDocRef.doc(dispatchTimes.docID).update(dispatchTimes.toJson());
+      return "Success";
+
+    }on FirebaseException catch (e){
+      print(e);
+      return "failed";
+    }
+  }
+
+  @override
+  Future<List<DispatchTimes>> getAllDeliveryDispatch() async {
+    try{
+      QuerySnapshot querySnapshot = await deliveryTimeDocRef.get();
+      List<DispatchTimes> times = querySnapshot.docs.map((doc) => DispatchTimes.fromSnapshot(doc)).toList();
+
+      return times;
+
+    }on FirebaseException catch (e){
+      print(e);
+      return Future.value(null);
+    }
+  }
+
+  @override
+  Future<List<DispatchTimes>> getAllActiveDeliveryDispatch() async {
+    try{
+      QuerySnapshot querySnapshot = await deliveryTimeDocRef.where("status",isEqualTo: "Active").get();
+      List<DispatchTimes> times = querySnapshot.docs.map((doc) => DispatchTimes.fromSnapshot(doc)).toList();
+
+      return times;
+
+    }on FirebaseException catch (e){
+      print(e);
+      return Future.value(null);
+    }
+  }
+
+  @override
+  Future<String> updateOrder(CustomerOrder order) async {
+    try {
+      await orderDocRef.doc(order.orderID).update(order.toJson());
+
+      return "Success";
+    } on FirebaseException catch (e) {
+      print(e);
+      return "failed";
+    }
+  }
+
+  Future<List<CustomerOrder>> getOrderByTimeID (String TimeID) async {
+    try{
+      QuerySnapshot querySnapshot = await orderDocRef.where("deliveryTimeID",isEqualTo: TimeID).get();
+      List<CustomerOrder> times = querySnapshot.docs.map((doc) => CustomerOrder.fromSnapshot(doc)).toList();
+
+      return times;
+
+    }on FirebaseException catch (e){
+      print(e);
+      return Future.value(null);
+    }
+  }
+
+  Future<List<CustomerOrder>> getOrderByStandard() async {
+    try {
+      QuerySnapshot querySnapshot = await orderDocRef.where("deliveryType",isEqualTo: "Standard delivery").get();
+      List<CustomerOrder> times = querySnapshot.docs.map((doc) => CustomerOrder.fromSnapshot(doc)).toList();
+      return times;
+    } on FirebaseException catch (e){
+      print(e);
+      return Future.value(null);
+    }
+  }
+
+  Future<List<CustomerOrder>> getOrderByDriverID(String riderID) async {
+    try {
+      QuerySnapshot querySnapshot = await orderDocRef.where("driverID",isEqualTo: riderID)
+          .where("status",isEqualTo: "WaitingForDelivery").get();
+      List<CustomerOrder> times = querySnapshot.docs.map((doc) => CustomerOrder.fromSnapshot(doc)).toList();
+      return times;
+    } on FirebaseException catch (e){
+      print(e);
+      return Future.value(null);
+    }
+  }
+
+
 
 }
