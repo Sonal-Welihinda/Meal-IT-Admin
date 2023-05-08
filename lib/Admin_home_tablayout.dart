@@ -57,12 +57,13 @@ class _Admin_home_tablayout extends State<Admin_home_tablayout> {
     Scaffold(
       key: sacfFold,
       drawer: Drawer(
+        backgroundColor: Color.fromRGBO(225, 77, 42, 1),
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
             const DrawerHeader(
               decoration: BoxDecoration(
-                color: Colors.blue,
+                color: Color.fromRGBO(225, 77, 42, 1),
               ),
               child: Text(
                 'Menu',
@@ -74,6 +75,7 @@ class _Admin_home_tablayout extends State<Admin_home_tablayout> {
             ),
             if(userType == "Branch-Admin")
               ListTile(
+                textColor: Colors.white,
                 leading: Icon(Icons.inventory_2),
                 title: Text('Inventory'),
                 onTap: () {
@@ -84,14 +86,16 @@ class _Admin_home_tablayout extends State<Admin_home_tablayout> {
               ),
             if(userType == "Branch-Admin")
               ListTile(
-                leading: Icon(Icons.local_shipping),
+                textColor: Colors.white,
+                leading: Icon(Icons.local_shipping,color: Colors.white),
                 title: Text('Orders'),
                 onTap: () {
                   // Navigate to settings screen.
                 },
               ),
             ListTile(
-              leading: Icon(Icons.receipt),
+              textColor: Colors.white,
+              leading: Icon(Icons.receipt,color: Colors.white,),
               title: Text('Recipe'),
               onTap: () {
                 setState(() {
@@ -102,7 +106,8 @@ class _Admin_home_tablayout extends State<Admin_home_tablayout> {
             ),
 
             ListTile(
-              leading: Icon(Icons.sd),
+              textColor: Colors.white,
+              leading: Icon(Icons.sd,color: Colors.white),
               title: Text('Advertisement'),
               onTap: () {
                 // Navigate to help screen.
@@ -111,7 +116,8 @@ class _Admin_home_tablayout extends State<Admin_home_tablayout> {
             ),
             if(userType == "AdminHQ")
             ListTile(
-              leading: Icon(Icons.store),
+              textColor: Colors.white,
+              leading: Icon(Icons.store,color: Colors.white),
               title: Text('Branches'),
               onTap: () {
                 setState(() {
@@ -122,7 +128,8 @@ class _Admin_home_tablayout extends State<Admin_home_tablayout> {
             ),
 
             ListTile(
-              leading: Icon(Icons.local_shipping),
+              textColor: Colors.white,
+              leading: Icon(Icons.local_shipping,color: Colors.white),
               title: Text('Dispatch'),
               onTap: () {
                 setState(() {
@@ -133,7 +140,8 @@ class _Admin_home_tablayout extends State<Admin_home_tablayout> {
             ),
 
             ListTile(
-              leading: Icon(Icons.group),
+              textColor: Colors.white,
+              leading: Icon(Icons.group,color: Colors.white),
               title: Text('Users'),
               onTap: () {
                 setState(() {
@@ -143,7 +151,8 @@ class _Admin_home_tablayout extends State<Admin_home_tablayout> {
 
             ),
             ListTile(
-              leading: Icon(Icons.logout),
+              textColor: Colors.white,
+              leading: Icon(Icons.logout,color: Colors.white),
               title: Text('Logout'),
               onTap: () async {
                 await FirebaseAuth.instance.signOut();

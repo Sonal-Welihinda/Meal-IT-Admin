@@ -61,15 +61,28 @@ class CartModel{
       ..colabFoodProduct = colabFoodProduct;
   }
 
-  factory CartModel.fromSnapshot3(DocumentSnapshot snapshot) {
-    // print(snapshot.data()['surpriseList']);
-  final data = snapshot.data() as Map<String, dynamic>;
-    final surpriseListJson = data['orderItems.surpriseList'] as List<dynamic>;
-    final foodProductJson = data['orderItems.foodProduct'] as List<dynamic>;
-    final colabFoodProductJson = data['orderItems.colabFoodProduct'] as List<dynamic>;
+  factory CartModel.fromSnapshot3(Map<String, dynamic> data) {
+    // print(snapshot.data()['surpriseL1ist']);
+  // final data = snapshot.data() as Map<String, dynamic>;
+    print("test1"+data.toString());
+    print("");
+    // List<SurprisePack> listSPack=[];
+    // for(var i=0; i<data['surpriseList'].length;i++){
+    //   listSPack.add(data['surpriseList'][i]);
+    // }
+    // print(listSPack.length);
+    final surpriseListJson = data['surpriseList'] as List<dynamic>;
+    final foodProductJson = data['foodProduct'] as List<dynamic>;
+    final colabFoodProductJson = data['colabFoodProduct'] as List<dynamic>;
     final surpriseList =
-    surpriseListJson.map((e) => SurprisePack.fromSnapshot(e)).toList();
-    List<SurprisePack> listSPack=[];
+    surpriseListJson.map((e) {
+      print(e);
+      return SurprisePack.fromSnapshot(e);
+    }).toList();
+
+
+
+
     final foodProduct =
     foodProductJson.map((e) => FoodProduct.fromSnapshot(e)).toList();
     List<FoodProduct> listFP=[];

@@ -53,34 +53,34 @@ class _RecipeAddState extends State<RecipeAdd> {
   }
 
   void importFileData() async{
-    void extractZipFileContents(List<int> bytes) {
-      final archive = ZipDecoder().decodeBytes(bytes);
-      for (final file in archive) {
-        if (file.isFile && file.name.endsWith('.csv')) {
-          final csvBytes = file.content as List<int>;
-          final csvString = String.fromCharCodes(csvBytes);
-          final csvLines = csvString.split('\n');
-          for (final csvLine in csvLines) {
-            final imageName = csvLine.trim();
-            final imageFile = archive.files.firstWhere(
-                  (file) => file.isFile && file.name.endsWith(imageName),
-              orElse: () => null,
-            );
-            if (imageFile != null) {
-              final imageBytes = imageFile.content as List<int>;
-              // pass imageBytes to a class here
-            }
-          }
-        }
-      }
-    }
+    // void extractZipFileContents(List<int> bytes) {
+    //   final archive = ZipDecoder().decodeBytes(bytes);
+    //   for (final file in archive) {
+    //     if (file.isFile && file.name.endsWith('.csv')) {
+    //       final csvBytes = file.content as List<int>;
+    //       final csvString = String.fromCharCodes(csvBytes);
+    //       final csvLines = csvString.split('\n');
+    //       for (final csvLine in csvLines) {
+    //         final imageName = csvLine.trim();
+    //         final imageFile = archive.files.firstWhere(
+    //               (file) => file.isFile && file.name.endsWith(imageName),
+    //           orElse: () => null,
+    //         );
+    //         if (imageFile != null) {
+    //           final imageBytes = imageFile.content as List<int>;
+    //           // pass imageBytes to a class here
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
 
-    var request = http.MultipartRequest('POST', Uri.parse('https://your-upload-url.com'));
-    request.files.add(await http.MultipartFile.fromPath('file', '/path/to/your/zip/file'));
-    var response = await request.send();
-    if (response.statusCode == 200){
-      extractZipFileContents();
-    }
+    // var request = http.MultipartRequest('POST', Uri.parse('https://your-upload-url.com'));
+    // request.files.add(await http.MultipartFile.fromPath('file', '/path/to/your/zip/file'));
+    // var response = await request.send();
+    // if (response.statusCode == 200){
+    //   extractZipFileContents();
+    // }
   }
 
   Future<void> createRecipe() async {

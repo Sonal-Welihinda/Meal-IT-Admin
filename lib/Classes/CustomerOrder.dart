@@ -49,12 +49,14 @@ class CustomerOrder {
   static CustomerOrder fromSnapshot(DocumentSnapshot snapshot) {
     Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
     print(snapshot);
+
+
     return CustomerOrder.empty()
       ..orderID = snapshot.id
       ..customerName = data['customerName']
       ..customerEmail = data['customerEmail']
       ..customerNumber = data['customerNumber']
-      ..orderItems = CartModel.fromSnapshot3(snapshot)
+      ..orderItems = CartModel.fromSnapshot3(snapshot['orderItems'])
       ..address = data['address']
       ..location = data['location']
       ..orderPlaceTime = (data['orderPlaceTime'] as Timestamp).toDate()

@@ -40,12 +40,8 @@ class _MealShipLoginState extends State<MealShipLogin> {
               children: [
                 SizedBox(height: 80),
                 Center(
-                  child: Text(
-                    'MealShip login',
-                    style: TextStyle(
-                      fontSize: 40,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  child: Image.asset(
+                    "assets/Images/adminlogo.png"
                   ),
                 ),
                 SizedBox(height: 48),
@@ -60,6 +56,11 @@ class _MealShipLoginState extends State<MealShipLogin> {
                     if (value!.isEmpty) {
                       return 'Please enter your email';
                     }
+
+                    if(!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)){
+                      return 'Please enter valid email';
+                    }
+
                     return null;
                   },
                 ),
@@ -130,6 +131,9 @@ class _MealShipLoginState extends State<MealShipLogin> {
                       });
                     }
                   },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color.fromRGBO(225, 77, 42, 1),
+                  ),
                   child: Text('Login'),
                 ),
               ],

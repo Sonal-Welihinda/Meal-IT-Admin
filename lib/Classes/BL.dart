@@ -43,6 +43,14 @@ class BusinessLayer{
     }
   }
 
+  String? validateEmail(String? value) {
+    const pattern = r'^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+';
+    final regex = RegExp(pattern);
+    return value!.isNotEmpty && !regex.hasMatch(value)
+        ? 'Enter a valid email address'
+        : null;
+  }
+
   Future<String> loadSavedValue(field) async {
     prefs ??= await SharedPreferences.getInstance();
     String  userType = prefs!.getString(field) ?? '';
