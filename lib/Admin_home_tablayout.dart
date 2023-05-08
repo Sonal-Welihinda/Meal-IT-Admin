@@ -107,6 +107,7 @@ class _Admin_home_tablayout extends State<Admin_home_tablayout> {
 
             ListTile(
               textColor: Colors.white,
+
               leading: Icon(Icons.sd,color: Colors.white),
               title: Text('Advertisement'),
               onTap: () {
